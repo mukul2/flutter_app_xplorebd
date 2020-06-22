@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:appxplorebd/models/login_response.dart';
-import 'package:appxplorebd/view/patient_view.dart';
+import 'file:///D:/downloads/TM/flutter_app_xplorebd/lib/view/patient/patient_view.dart';
 import 'package:flutter/material.dart';
 import 'package:appxplorebd/networking/Repsonse.dart';
 import 'package:appxplorebd/networking/ApiProvider.dart';
@@ -96,6 +96,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                   });
                   if (loginResponse.status) {
                     AUTH_KEY ="Bearer "+ loginResponse.accessToken;
+                    USER_ID =loginResponse.userInfo.id.toString();
                     if (loginResponse.userInfo.userType.contains("d")) {
                       //doctor
                     } else if (loginResponse.userInfo.userType.contains("p")) {

@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'dart:async';
 
   String AUTH_KEY= "";
+  String USER_ID= "";
 
 
   final String _baseUrl = "http://telemedicine.drshahidulislam.com/api/";
