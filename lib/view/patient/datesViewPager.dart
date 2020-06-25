@@ -19,20 +19,20 @@ String photo_;
 String designation_title_;
 int id_;
 
-class ChamberDoctorFullProfileView extends StatefulWidget {
+class DatesViewPager extends StatefulWidget {
   String name;
   String photo;
   String designation_title;
   int id;
 
-  ChamberDoctorFullProfileView(this.id, this.name, this.photo,
-      this.designation_title);
+  DatesViewPager(
+      this.id, this.name, this.photo, this.designation_title);
 
   @override
   HomePageState createState() => new HomePageState();
 }
 
-class HomePageState extends State<ChamberDoctorFullProfileView> {
+class HomePageState extends State<DatesViewPager> {
   Future<String> getData() async {
     final http.Response response = await http.post(
       "http://telemedicine.drshahidulislam.com/api/" +
@@ -274,112 +274,40 @@ Widget chamberBooking(chamber_info) {
                 ),
               ),
             ),
-            Text(chamber_info.toString()),
-            printAllDates(chamber_info["chamber_days"]),
+            Card(
+              child: printAllDates(),
+            ),
           ],
         )),
   );
 }
 
-Widget printAllDates(chamber_days) {
-  TabBarView tabBarView = TabBarView(
-    children: [],
-  );
-
-
+Widget printAllDates() {
   var monday = 1;
-  int  datesSize = 0;
+  var now = new DateTime.now();
+  String dates = "";
+  showThisToast((now.month).toString() + ' starts');
+  showThisToast(now.toString());
+  now = now.add(new Duration(days: 10));
+  showThisToast((now.month).toString() + 'month starts');
+  showThisToast(now.toString());
+  int i = 0;
 //  while ((now.weekday) == monday) {
 //    i++;
 //    now = now.add(new Duration(days: 1));
 //    dates += 'nxt monday $now' + '\n';
 //    showThisToast(now.toString());
 //  }
-   bool sundayOpen = false ;
-   bool mondayOpen = false ;
-   bool tuesdayOpen = false ;
-   bool wedsdayOpen = false ;
-   bool thurdayOpen = false ;
-   bool fridayOpen = false ;
-   bool satdayOpen = false ;
-
-   List<bool>openBool= [false ,false ,false ,false ,false ,false ,false ];//mon sat
-
-  if(chamber_days.length>0) {
-    for(int k = 0; k<chamber_days.length;k ++){
-      openBool[int.parse(chamber_days[k]["day"].toString())] = true;
+  for (int i = now.day; i < getMonthCount(now.month); i++) {
+    now = now.add(new Duration(days: 1));
+    if (now.weekday == monday) {
+      dates += 'nxt monday $now' + '\n';
     }
   }
-
- // showThisToast((chamber_days[0]["day"]).toString());
-
-  String dates = "";
-
-  if(true) {
-    var now = new DateTime.now();
-    now = now.add(new Duration(days: 6));
-    datesSize = 0;
-    for (int i = now.day; i < getMonthCount(now.month); i++) {
-      now = now.add(new Duration(days: 1));
-      if ((now.weekday == 1 && openBool[0]) ||(now.weekday ==2 && openBool[1])||(now.weekday ==3 &&openBool[2])||(now.weekday ==4 && openBool[3])||(now.weekday ==5 && openBool[4])||(now.weekday ==6 && openBool[5])||(now.weekday ==7 && openBool[6])  ) {
-        datesSize++;
-        dates +=now.toIso8601String();
-        tabBarView.children.add(Padding(
-          padding: EdgeInsets.all(10),
-          child: Card(
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Center(
-                      child: Text(
-                        now.toUtc().toIso8601String(),
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                ),
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
-                ),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text(),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Center(
-                    child: RaisedButton(
-                      color: Colors.pink,
-                      child: Text("Book Appointment",
-                          style: TextStyle(color: Colors.white)),
-                      onPressed: () {
-
-                      },
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ));
-        //tabBar.tabs.add(  Tab( text:"ok"));
-      }
-
-    }
-    showThisToast("days foud "+datesSize.toString());
-  }
-
-  DefaultTabController tabController = DefaultTabController(
-    length: datesSize,
-    child: Column(
-      children: <Widget>[SizedBox(height: 300.0, child: tabBarView)],
-    ),
-  );
-
   //showThisToast('$i monday found');
   //print('Recent monday $now');
 
-  return tabController;
+  return Text(dates);
 }
 
 int getMonthCount(int month) {
