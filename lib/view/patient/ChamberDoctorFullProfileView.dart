@@ -10,6 +10,8 @@ import 'dart:convert';
 import '../login_view.dart';
 import 'package:http/http.dart' as http;
 
+import 'AppointmentConfirmForm.dart';
+
 List skill_info;
 List education_info;
 List chamber_info;
@@ -150,7 +152,7 @@ Widget Chambers(List chambers) {
                       context,
                       MaterialPageRoute(
                         builder: (BuildContext context) =>
-                            chamberBooking(chamber_info[index]), //startwork
+                            chamberBooking(chamber_info[index],context), //startwork
                       ));
                 },
               ),
@@ -232,7 +234,7 @@ Widget Educations(List education_info) {
   );
 }
 
-Widget chamberBooking(chamber_info) {
+Widget chamberBooking(chamber_info,BuildContext context) {
   return Scaffold(
     appBar: AppBar(
       title: Text("Book an Appointment"),
@@ -274,14 +276,14 @@ Widget chamberBooking(chamber_info) {
                 ),
               ),
             ),
-            Text(chamber_info.toString()),
-            printAllDates(chamber_info["chamber_days"]),
+
+            printAllDates(chamber_info["chamber_days"],context,(chamber_info["id"]).toString()),
           ],
         )),
   );
 }
 
-Widget printAllDates(chamber_days) {
+Widget printAllDates(chamber_days,BuildContext context, String chamber_id) {
   TabBarView tabBarView = TabBarView(
     children: [],
   );
@@ -303,11 +305,16 @@ Widget printAllDates(chamber_days) {
    bool fridayOpen = false ;
    bool satdayOpen = false ;
 
+
    List<bool>openBool= [false ,false ,false ,false ,false ,false ,false ];//mon sat
+   List<String>startTimesList= ["" ,"" ,"" ,"" ,"" ,"" ,""];//mon sat
+   List<String>endTimesList= ["" ,"" ,"" ,"" ,"" ,"" ,""];//mon sat
 
   if(chamber_days.length>0) {
     for(int k = 0; k<chamber_days.length;k ++){
       openBool[int.parse(chamber_days[k]["day"].toString())] = true;
+      startTimesList[int.parse(chamber_days[k]["day"].toString())] = (chamber_days[k]["start_time"]).toString();
+      endTimesList[int.parse(chamber_days[k]["day"].toString())] = (chamber_days[k]["end_time"]).toString();
     }
   }
 
@@ -329,30 +336,56 @@ Widget printAllDates(chamber_days) {
           child: Card(
             child: Column(
               children: <Widget>[
+               Container(
+                 color:Colors.pink ,
+                 child:  Padding(
+
+                   padding: EdgeInsets.all(0),
+                   child: ListTile(
+                     leading: Wrap(
+                       spacing: 0, // space between two icons
+                       children: <Widget>[
+                         Icon(Icons.navigate_before ,color: Colors.white,), // icon-1
+                         // icon-2
+                       ],
+                     ),
+                     trailing: Wrap(
+                       spacing: 12, // space between two icons
+                       children: <Widget>[
+                         Icon(Icons.navigate_next,color: Colors.white,), // icon-1
+                         // icon-2
+                       ],
+                     ) ,
+                     title: Center(
+                         child: Text(
+
+                           ((now.day).toString()+"/"+(now.month).toString()+"/"+(now.year).toString()).toString(),
+                           style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                         )),
+                   ),
+                 ),
+               ),
+
                 Padding(
                   padding: EdgeInsets.all(10),
-                  child: Center(
-                      child: Text(
-                        now.toUtc().toIso8601String(),
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )),
-                ),
-                Divider(
-                  color: Colors.black,
-                  thickness: 1,
+                  child: Text("Start Time "+startTimesList[now.weekday-1]),
                 ),
                 Padding(
                   padding: EdgeInsets.all(10),
-                  child: Text(),
+                  child: Text("End Time "+endTimesList[now.weekday-1]),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(12),
                   child: Center(
                     child: RaisedButton(
                       color: Colors.pink,
                       child: Text("Book Appointment",
                           style: TextStyle(color: Colors.white)),
                       onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>
+                                appointmentFormWidget(chamber_id)));
 
                       },
                     ),
@@ -372,7 +405,7 @@ Widget printAllDates(chamber_days) {
   DefaultTabController tabController = DefaultTabController(
     length: datesSize,
     child: Column(
-      children: <Widget>[SizedBox(height: 300.0, child: tabBarView)],
+      children: <Widget>[SizedBox(height: 250.0, child: tabBarView)],
     ),
   );
 
@@ -425,6 +458,15 @@ int getMonthCount(int month) {
 //],
 //),
 //)
+
+Widget appointmentFormWidget(String chamberID){
+  return Scaffold(
+    appBar: AppBar(title: Text("Confirm Appointment"),),
+    body: SingleChildScrollView(
+      child: AppointmentConfirmForm(id_.toString(),chamberID)
+    ),
+  );
+}
 void showThisToast(String s) {
   Fluttertoast.showToast(
       msg: s,

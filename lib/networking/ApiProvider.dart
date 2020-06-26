@@ -28,6 +28,21 @@ import 'dart:async';
       throw Exception('Failed to load album');
     }
   }
+  Future<LoginResponse> performAppointmentSubmit(String docID,String date,String name, String problem, String contact) async {
+    final http.Response response = await http.post(
+      _baseUrl + 'login',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'email': name, 'password': problem,'asd':contact}),
+    );
+    showThisToast(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      return LoginResponse.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load album');
+    }
+  }
 
   Future<LoginResponse> fetchDepartList(String email, String password) async {
     final http.Response response = await http.post(
