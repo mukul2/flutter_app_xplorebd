@@ -28,19 +28,29 @@ import 'dart:async';
       throw Exception('Failed to load album');
     }
   }
-  Future<LoginResponse> performAppointmentSubmit(String docID,String date,String name, String problem, String contact) async {
+  Future<dynamic> performAppointmentSubmit(String patient_id,String dr_id,String problems, String phone, String name ,String chamber_id,String date, String status, String type) async {
     final http.Response response = await http.post(
-      _baseUrl + 'login',
+      _baseUrl + 'add-appointment-info',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
       },
-      body: jsonEncode(<String, String>{'email': name, 'password': problem,'asd':contact}),
+      body: jsonEncode(<String, String>{'patient_id': patient_id,
+        'dr_id': dr_id,
+        'problems':problems,
+        'phone': phone,
+        'name':name,
+        'chamber_id': chamber_id,
+        'date':date,
+        'status': status,
+        'type':type,
+      }),
     );
     showThisToast(response.statusCode.toString());
     if (response.statusCode == 200) {
-      return LoginResponse.fromJson(json.decode(response.body));
+      return json.decode(response.body);
     } else {
-      throw Exception('Failed to load album');
+      throw Exception('Failed to load');
     }
   }
 

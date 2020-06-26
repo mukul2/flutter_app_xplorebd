@@ -134,32 +134,19 @@ class MyCustomFormState extends State<AppointmentConfirmForm> {
                       StandbyWid = Text("Please wait",style: TextStyle(color: Colors.white),);
                     });
 
-                    //showThisToast(widget.d);
+                    showThisToast("going to hit appint submit");
 
-                    LoginResponse loginResponse =
-                    await performAppointmentSubmit(widget.docID_,problem,contact,name, widget.chamberID_,date,"0");
-                    showThisToast(loginResponse.message);
-                    setState(() {
-                      StandbyWid = Text(loginResponse.message);
-                    });
-                    if (loginResponse.status) {
-                      AUTH_KEY = "Bearer " + loginResponse.accessToken;
-                      USER_ID = loginResponse.userInfo.id.toString();
-                      if (loginResponse.userInfo.userType.contains("d")) {
-                        //doctor
-                      } else if (loginResponse.userInfo.userType.contains("p")) {
-                        //patient
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => PatientAPP()));
-                      } else {
-                        //unknwon user
-                        showThisToast("Unknown user");
-                      }
-                    } else {
-                      showThisToast(loginResponse.message);
+                 var   appointmentSubmitRespons  =
+                    await performAppointmentSubmit(USER_ID,widget.docID_,problem,contact,name, widget.chamberID_,"08/08/2020","0","n");
+                    showThisToast(appointmentSubmitRespons["message"]);
+                    if(appointmentSubmitRespons["status"]){
+                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop(true);
                     }
+
                   }
                 },
                 child: StandbyWid,
