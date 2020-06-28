@@ -101,8 +101,9 @@ class MyCustomFormState extends State<MyCustomForm> {
                       //doctor
                     } else if (loginResponse.userInfo.userType.contains("p")) {
                       //patient
-                      Navigator.push(
-                          context, MaterialPageRoute(builder: (context) => PatientAPP()));
+                      mainP();
+//                      Navigator.push(
+//                          context, MaterialPageRoute(builder: (context) => PatientAPP()));
                     }else {
                       //unknwon user
                       showThisToast("Unknown user");

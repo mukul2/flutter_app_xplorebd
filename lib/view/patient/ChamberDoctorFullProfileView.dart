@@ -16,6 +16,7 @@ List skill_info;
 List education_info;
 List chamber_info;
 
+String SELECTED_DATE;
 String name_;
 String photo_;
 String designation_title_;
@@ -152,7 +153,8 @@ Widget Chambers(List chambers) {
                       context,
                       MaterialPageRoute(
                         builder: (BuildContext context) =>
-                            chamberBooking(chamber_info[index],context), //startwork
+                            chamberBooking(
+                                chamber_info[index], context), //startwork
                       ));
                 },
               ),
@@ -234,7 +236,7 @@ Widget Educations(List education_info) {
   );
 }
 
-Widget chamberBooking(chamber_info,BuildContext context) {
+Widget chamberBooking(chamber_info, BuildContext context) {
   return Scaffold(
     appBar: AppBar(
       title: Text("Book an Appointment"),
@@ -276,130 +278,164 @@ Widget chamberBooking(chamber_info,BuildContext context) {
                 ),
               ),
             ),
-
-            printAllDates(chamber_info["chamber_days"],context,(chamber_info["id"]).toString()),
+            printAllDates(chamber_info["chamber_days"], context,
+                (chamber_info["id"]).toString()),
           ],
         )),
   );
 }
 
-Widget printAllDates(chamber_days,BuildContext context, String chamber_id) {
+Widget printAllDates(chamber_days, BuildContext context, String chamber_id) {
   TabBarView tabBarView = TabBarView(
     children: [],
   );
 
-
   var monday = 1;
-  int  datesSize = 0;
+  int datesSize = 0;
 //  while ((now.weekday) == monday) {
 //    i++;
 //    now = now.add(new Duration(days: 1));
 //    dates += 'nxt monday $now' + '\n';
 //    showThisToast(now.toString());
 //  }
-   bool sundayOpen = false ;
-   bool mondayOpen = false ;
-   bool tuesdayOpen = false ;
-   bool wedsdayOpen = false ;
-   bool thurdayOpen = false ;
-   bool fridayOpen = false ;
-   bool satdayOpen = false ;
+  bool sundayOpen = false;
+  bool mondayOpen = false;
+  bool tuesdayOpen = false;
+  bool wedsdayOpen = false;
+  bool thurdayOpen = false;
+  bool fridayOpen = false;
+  bool satdayOpen = false;
 
+  List<bool> openBool = [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ]; //mon sat
+  List<String> startTimesList = ["", "", "", "", "", "", ""]; //mon sat
+  List<String> endTimesList = ["", "", "", "", "", "", ""]; //mon sat
 
-   List<bool>openBool= [false ,false ,false ,false ,false ,false ,false ];//mon sat
-   List<String>startTimesList= ["" ,"" ,"" ,"" ,"" ,"" ,""];//mon sat
-   List<String>endTimesList= ["" ,"" ,"" ,"" ,"" ,"" ,""];//mon sat
-
-  if(chamber_days.length>0) {
-    for(int k = 0; k<chamber_days.length;k ++){
+  if (chamber_days.length > 0) {
+    for (int k = 0; k < chamber_days.length; k++) {
       openBool[int.parse(chamber_days[k]["day"].toString())] = true;
-      startTimesList[int.parse(chamber_days[k]["day"].toString())] = (chamber_days[k]["start_time"]).toString();
-      endTimesList[int.parse(chamber_days[k]["day"].toString())] = (chamber_days[k]["end_time"]).toString();
+      startTimesList[int.parse(chamber_days[k]["day"].toString())] =
+          (chamber_days[k]["start_time"]).toString();
+      endTimesList[int.parse(chamber_days[k]["day"].toString())] =
+          (chamber_days[k]["end_time"]).toString();
     }
   }
 
- // showThisToast((chamber_days[0]["day"]).toString());
+  // showThisToast((chamber_days[0]["day"]).toString());
 
   String dates = "";
 
-  if(true) {
+  if (true) {
+    List<String> datesList = [];
+    List<int> datesListWeekMap = [];
     var now = new DateTime.now();
     now = now.add(new Duration(days: 6));
     datesSize = 0;
     for (int i = now.day; i < getMonthCount(now.month); i++) {
       now = now.add(new Duration(days: 1));
-      if ((now.weekday == 1 && openBool[0]) ||(now.weekday ==2 && openBool[1])||(now.weekday ==3 &&openBool[2])||(now.weekday ==4 && openBool[3])||(now.weekday ==5 && openBool[4])||(now.weekday ==6 && openBool[5])||(now.weekday ==7 && openBool[6])  ) {
+      if ((now.weekday == 1 && openBool[0]) ||
+          (now.weekday == 2 && openBool[1]) ||
+          (now.weekday == 3 && openBool[2]) ||
+          (now.weekday == 4 && openBool[3]) ||
+          (now.weekday == 5 && openBool[4]) ||
+          (now.weekday == 6 && openBool[5]) ||
+          (now.weekday == 7 && openBool[6])) {
         datesSize++;
-        dates +=now.toIso8601String();
-        tabBarView.children.add(Padding(
-          padding: EdgeInsets.all(10),
-          child: Card(
-            child: Column(
-              children: <Widget>[
-               Container(
-                 color:Colors.pink ,
-                 child:  Padding(
+        dates += now.toIso8601String();
+        datesList.add(((now.day).toString() +
+            "/" +
+            (now.month).toString() +
+            "/" +
+            (now.year).toString())
+            .toString());
+        datesListWeekMap.add(now.weekday - 1);
 
-                   padding: EdgeInsets.all(0),
-                   child: ListTile(
-                     leading: Wrap(
-                       spacing: 0, // space between two icons
-                       children: <Widget>[
-                         Icon(Icons.navigate_before ,color: Colors.white,), // icon-1
-                         // icon-2
-                       ],
-                     ),
-                     trailing: Wrap(
-                       spacing: 12, // space between two icons
-                       children: <Widget>[
-                         Icon(Icons.navigate_next,color: Colors.white,), // icon-1
-                         // icon-2
-                       ],
-                     ) ,
-                     title: Center(
-                         child: Text(
+        //tabBar.tabs.add(  Tab( text:"ok"));
+      }
+    }
 
-                           ((now.day).toString()+"/"+(now.month).toString()+"/"+(now.year).toString()).toString(),
-                           style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
-                         )),
-                   ),
-                 ),
-               ),
-
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text("Start Time "+startTimesList[now.weekday-1]),
+    for (int i = 0; i < datesList.length; i++) {
+      tabBarView.children.add(Padding(
+        padding: EdgeInsets.all(10),
+        child: Card(
+          child: Column(
+            children: <Widget>[
+              Container(
+                color: Colors.pink,
+                child: Padding(
+                  padding: EdgeInsets.all(0),
+                  child: ListTile(
+                    leading: Wrap(
+                      spacing: 0, // space between two icons
+                      children: <Widget>[
+                        Icon(
+                          Icons.navigate_before,
+                          color: Colors.white,
+                        ),
+                        // icon-1
+                        // icon-2
+                      ],
+                    ),
+                    trailing: Wrap(
+                      spacing: 12, // space between two icons
+                      children: <Widget>[
+                        Icon(
+                          Icons.navigate_next,
+                          color: Colors.white,
+                        ),
+                        // icon-1
+                        // icon-2
+                      ],
+                    ),
+                    title: Center(
+                        child: Text(
+                          datesList[i],
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
+                        )),
+                  ),
                 ),
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Text("End Time "+endTimesList[now.weekday-1]),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Center(
-                    child: RaisedButton(
-                      color: Colors.pink,
-                      child: Text("Book Appointment",
-                          style: TextStyle(color: Colors.white)),
-                      onPressed: () {
+              ),
+              Padding(
+                padding: EdgeInsets.all(10),
+                child:
+                Text("Start Time " + startTimesList[datesListWeekMap[i]]),
+              ),
+              Padding(
+                padding: EdgeInsets.all(10),
+                child: Text("End Time " + endTimesList[datesListWeekMap[i]]),
+              ),
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: Center(
+                  child: RaisedButton(
+                    color: Colors.pink,
+                    child: Text("Book Appointment",
+                        style: TextStyle(color: Colors.white)),
+                    onPressed: () {
+                      SELECTED_DATE = datesList[i];
+                      showThisToast(SELECTED_DATE);
                         Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) =>
-                                appointmentFormWidget(chamber_id)));
-
-                      },
-                    ),
+                                appointmentFormWidget(chamber_id,SELECTED_DATE)));
+                    },
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
-        ));
-        //tabBar.tabs.add(  Tab( text:"ok"));
-      }
-
+        ),
+      ));
     }
-    showThisToast("days foud "+datesSize.toString());
+    showThisToast("days foud " + datesSize.toString());
   }
 
   DefaultTabController tabController = DefaultTabController(
@@ -459,14 +495,16 @@ int getMonthCount(int month) {
 //),
 //)
 
-Widget appointmentFormWidget(String chamberID){
+Widget appointmentFormWidget(String chamberID, String DATE) {
   return Scaffold(
-    appBar: AppBar(title: Text("Confirm Appointment"),),
-    body: SingleChildScrollView(
-      child: AppointmentConfirmForm(id_.toString(),chamberID)
+    appBar: AppBar(
+      title: Text("Confirm Appointment"),
     ),
+    body: SingleChildScrollView(
+        child: AppointmentConfirmForm(id_.toString(), chamberID, DATE)),
   );
 }
+
 void showThisToast(String s) {
   Fluttertoast.showToast(
       msg: s,

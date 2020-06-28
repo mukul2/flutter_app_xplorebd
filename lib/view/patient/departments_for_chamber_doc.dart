@@ -7,14 +7,12 @@ import 'OnlineDoctorsList.dart';
 import '../login_view.dart';
 import 'package:http/http.dart' as http;
 
-
 class DeptForChamberDoc extends StatefulWidget {
   @override
   HomePageState createState() => new HomePageState();
 }
 
 class HomePageState extends State<DeptForChamberDoc> {
-
   List data;
 
   Future<String> getData() async {
@@ -24,7 +22,6 @@ class HomePageState extends State<DeptForChamberDoc> {
         'Content-Type': 'application/json',
         'Authorization': AUTH_KEY,
       },
-
     );
 
     this.setState(() {
@@ -41,7 +38,6 @@ class HomePageState extends State<DeptForChamberDoc> {
     this.getData();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -49,84 +45,85 @@ class HomePageState extends State<DeptForChamberDoc> {
           title: new Text("Choose Departmemt"), backgroundColor: Colors.blue),
       body: new ListView.builder(
         itemCount: data == null ? 0 : data.length,
-
         itemBuilder: (BuildContext context, int index) {
           return new InkWell(
-            onTap: (){
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChamberDoctorList((data[index]["id"]).toString())));
-            },
-            child: Card(
-
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(00.0),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(15),
-              child: new Text(data[index]["name"],
-                style: TextStyle(fontWeight: FontWeight.bold),),
-            ),
-          ));
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            ChamberDoctorList((data[index]["id"]).toString())));
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(00.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(15),
+                  child: new Text(
+                    data[index]["name"],
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ));
         },
       ),
     );
   }
 }
+
 List data_;
-Widget DeptChamberDocWidget(BuildContext context){
 
-
+Widget DeptChamberDocWidget(BuildContext context) {
   return Scaffold(
-    appBar: AppBar(        title: Text("Choose a Department"),),
-
+      appBar: AppBar(
+        title: Text("Choose a Department"),
+      ),
       body: FutureBuilder(
           future: getData(),
-          builder: (context,projectSnap){
-            return (data_==null) ? Center(child: CircularProgressIndicator()):new ListView.builder(
-              itemCount: projectSnap.data == null ? 0 : projectSnap.data.length,
-
-              itemBuilder: (BuildContext context, int index) {
-                return new InkWell(
-                    onTap: (){
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ChamberDoctorListWidget((projectSnap.data[index]["id"]).toString())));
+          builder: (context, projectSnap) {
+            return (data_ == null)
+                ? Center(child: CircularProgressIndicator())
+                : new ListView.builder(
+                    itemCount:
+                        projectSnap.data == null ? 0 : projectSnap.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return new InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ChamberDoctorListWidget(
+                                            (projectSnap.data[index]["id"])
+                                                .toString())));
+                          },
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(00.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(15),
+                              child: new Text(
+                                projectSnap.data[index]["name"],
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ));
                     },
-                    child: Card(
-
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(00.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(15),
-                        child: new Text(projectSnap.data [index]["name"],
-                          style: TextStyle(fontWeight: FontWeight.bold),),
-                      ),
-                    ));
-              },
-            );
-
-          })
-
-
-  );
-
+                  );
+          }));
 }
 
 Future<List> getData() async {
-
   final http.Response response = await http.post(
     "http://telemedicine.drshahidulislam.com/api/" + 'department-list',
     headers: <String, String>{
       'Content-Type': 'application/json',
       'Authorization': AUTH_KEY,
     },
-
   );
   data_ = json.decode(response.body);
 
-
   return data_;
-
 }

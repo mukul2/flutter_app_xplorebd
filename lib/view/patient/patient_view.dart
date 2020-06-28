@@ -1,27 +1,39 @@
+import 'dart:convert';
+import 'dart:io' show Platform;
+
+import 'package:appxplorebd/chat/model/chat_screen.dart';
+import 'package:appxplorebd/chat/model/root_page.dart';
+import 'package:appxplorebd/chat/service/authentication.dart';
+import 'package:appxplorebd/networking/ApiProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:http/http.dart' as http;
 import 'SubscriptionsActivityPatient.dart';
 import 'departments_for_chamber_doc.dart';
 import 'departments_for_online_doc.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
-void main() => runApp(PatientAPP());
+final String _baseUrl = "http://telemedicine.drshahidulislam.com/api/";
+
+void mainP() {
+  runApp(PatientAPP());
+}
 
 class PatientAPP extends StatelessWidget {
   // This widget is the root of your application.
 
-
   @override
   Widget build(BuildContext context) {
     Future<bool> _onWillpop() {
-     // Navigator.of(context).pop(true);
-     // showThisToast("backpressed");
+      // Navigator.of(context).pop(true);
+      // showThisToast("backpressed");
 
       return Future.value(false);
     }
-    return WillPopScope(
 
-      onWillPop:_onWillpop,
+    return WillPopScope(
+      onWillPop: _onWillpop,
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -177,175 +189,173 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
         child: Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child: Text(
+            "What are you looking for",
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+          child: Card(
+            child: ListTile(
+              title: Text("Search for Doctor or Medicine"),
+              leading: Icon(
+                Icons.search,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ),
+        GridView.count(
+          shrinkWrap: true,
+          primary: false,
+          padding: const EdgeInsets.all(20),
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          crossAxisCount: 2,
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-              child: Text(
-                "What are you looking for",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                    fontSize: 18),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-              child: Card(
-                child: ListTile(
-                  title: Text("Search for Doctor or Medicine"),
-                  leading: Icon(
-                    Icons.search,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-            GridView.count(
-              shrinkWrap: true,
-              primary: false,
-              padding: const EdgeInsets.all(20),
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              crossAxisCount: 2,
-              children: <Widget>[
-                InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DeptListOnlineDocWidget(context),));
-                    },
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      child: Card(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                              child: Image.asset(
-                                "assets/doctor.png",
-                                width: 30,
-                                height: 30,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              child:
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DeptListOnlineDocWidget(context),
+                      ));
+                },
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  child: Card(
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                          child: Image.asset(
+                            "assets/doctor.png",
+                            width: 30,
+                            height: 30,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          child:
                               const Text("I need to consult an Online Doctor"),
-                              color: Colors.white,
-                            )
-                          ],
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  ),
+                )),
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => DeptChamberDocWidget(context)));
+                },
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  child: Card(
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                          child: Image.asset(
+                            "assets/doctor.png",
+                            width: 30,
+                            height: 30,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    )),
-                InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DeptChamberDocWidget(context)));
-                    },
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      child: Card(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                              child: Image.asset(
-                                "assets/doctor.png",
-                                width: 30,
-                                height: 30,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              child: const Text(
-                                  "Find the best Doctor near you"),
-                              color: Colors.white,
-                            )
-                          ],
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          child: const Text("Find the best Doctor near you"),
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  ),
+                )),
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SubscriptionViewPatient()));
+                },
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  child: Card(
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                          child: Image.asset(
+                            "assets/doctor.png",
+                            width: 30,
+                            height: 30,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    )),
-                InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SubscriptionViewPatient()));
-                    },
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      child: Card(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                              child: Image.asset(
-                                "assets/doctor.png",
-                                width: 30,
-                                height: 30,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              child: const Text("Subscriptions"),
-                              color: Colors.white,
-                            )
-                          ],
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          child: const Text("Subscriptions"),
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  ),
+                )),
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChatListActivity()));
+                },
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  child: Card(
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                          child: Image.asset(
+                            "assets/doctor.png",
+                            width: 30,
+                            height: 30,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    )),
-                InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DeptForChamberDoc()));
-                    },
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      child: Card(
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                              child: Image.asset(
-                                "assets/doctor.png",
-                                width: 30,
-                                height: 30,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              child: const Text("Chats"),
-                              color: Colors.white,
-                            )
-                          ],
-                        ),
-                      ),
-                    )),
-              ],
-            )
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          child: const Text("Chats"),
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  ),
+                )),
           ],
-        ));
+        )
+      ],
+    ));
   }
 }
 
@@ -386,8 +396,170 @@ class _AppointmentState extends State<Appointment> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text("Appointment"),
-    );
+        child: DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("My Appointments"),
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                icon: Icon(Icons.done_all),
+                text: "Confirmed",
+              ),
+              Tab(
+                icon: Icon(Icons.done),
+                text: "Pending",
+              ),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            ConfirmedList(),
+            PedingList(),
+          ],
+        ),
+      ),
+    ));
+  }
+}
+
+bool isConfirmedLoading = true;
+
+bool isPendingLoading = true;
+
+List data_Confirmd;
+
+Widget ConfirmedList() {
+  return Scaffold(
+      body: FutureBuilder(
+          future: fetchConfirmed(),
+          builder: (context, projectSnap) {
+            return (false)
+                ? Center(child: CircularProgressIndicator())
+                : new ListView.builder(
+                    itemCount:
+                        projectSnap.data == null ? 0 : projectSnap.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return new InkWell(
+                          onTap: () {},
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(15),
+                              child: ListTile(
+                                trailing: Icon(Icons.keyboard_arrow_right),
+                                leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                  "http://telemedicine.drshahidulislam.com/" +
+                                      projectSnap.data[index]["dr_info"]
+                                          ["photo"],
+                                )),
+                                title: new Text(
+                                  projectSnap.data[index]["dr_info"]["name"],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: new Text(
+                                  projectSnap.data[index]["date"],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ));
+                    },
+                  );
+          }));
+}
+
+Widget PedingList() {
+  return Scaffold(
+      body: FutureBuilder(
+          future: fetchPeding(),
+          builder: (context, projectSnap) {
+            return (false)
+                ? Center(child: CircularProgressIndicator())
+                : new ListView.builder(
+                    itemCount:
+                        projectSnap.data == null ? 0 : projectSnap.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return new InkWell(
+                          onTap: () {},
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(15),
+                              child: ListTile(
+                                trailing: Icon(Icons.keyboard_arrow_right),
+                                leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                  "http://telemedicine.drshahidulislam.com/" +
+                                      projectSnap.data[index]["dr_info"]
+                                          ["photo"],
+                                )),
+                                title: new Text(
+                                  projectSnap.data[index]["dr_info"]["name"],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: new Text(
+                                  projectSnap.data[index]["date"],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ));
+                    },
+                  );
+          }));
+}
+
+Future<dynamic> fetchConfirmed() async {
+  showThisToast("going to fetch confirmed list");
+  final http.Response response = await http.post(
+    _baseUrl + 'get-appointment-list',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': AUTH_KEY,
+    },
+    body: jsonEncode(
+        <String, String>{'user_type': "patient", 'id': USER_ID, 'status': "1"}),
+  );
+
+  if (response.statusCode == 200) {
+    data_Confirmd = json.decode(response.body);
+    isConfirmedLoading = false;
+    showThisToast("size " + (data_Confirmd.length).toString());
+    return json.decode(response.body);
+    // return LoginResponse.fromJson(json.decode(response.body));
+  } else {
+    throw Exception('Failed to load album');
+  }
+}
+
+Future<dynamic> fetchPeding() async {
+  showThisToast("going to fetch confirmed list");
+  final http.Response response = await http.post(
+    _baseUrl + 'get-appointment-list',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': AUTH_KEY,
+    },
+    body: jsonEncode(
+        <String, String>{'user_type': "patient", 'id': USER_ID, 'status': "0"}),
+  );
+
+  if (response.statusCode == 200) {
+    data_Confirmd = json.decode(response.body);
+    isConfirmedLoading = false;
+    showThisToast("size " + (data_Confirmd.length).toString());
+    return json.decode(response.body);
+    // return LoginResponse.fromJson(json.decode(response.body));
+  } else {
+    throw Exception('Failed to load album');
   }
 }
 
@@ -485,6 +657,126 @@ class DeptOnlineActivity extends StatelessWidget {
       body: DeptListOnlineDocWidget(context),
     );
   }
+}
+
+class ChatListActivity extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Chat List"),
+        actions: <Widget>[
+//          IconButton(
+//            icon: Icon(Icons.share),
+//            onPressed: () {},
+//          ),
+        ],
+      ),
+      body: ChatListWidget(context),
+    );
+  }
+}
+
+Widget ChatListWidget(BuildContext context) {
+  // String UID = USER_ID;
+  String UID = "2";
+
+  // FirebaseDatabase.instance.reference().child("xploreDoc").once()
+  return Scaffold(
+    body: FutureBuilder(
+        future: FirebaseDatabase.instance
+            .reference()
+            .child("xploreDoc")
+            .child("lastChatHistory")
+            .child(UID)
+            .once(),
+        builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
+          if (snapshot.hasData && snapshot.data.value != null) {
+            List lists = [];
+            lists.clear();
+            Map<dynamic, dynamic> values = snapshot.data.value;
+            values.forEach((key, values) {
+              lists.add(values);
+            });
+            showThisToast((snapshot.data.value).toString());
+            return lists.length > 0
+                ? new ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: lists.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          String chatRoom = createChatRoomName(
+                             2,
+                              11);
+                          String own_id = "2";
+                          String own_name = "Brie Larsson";
+                          String own_photo = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSQkxmFzA0ekvItbzZh7n2irqs2nuSCK1K8-Q&usqp=CAU";
+                          String partner_id = "11";
+                          String partner_name = "Gal Gadot";
+                          String parner_photo = "https://media1.popsugar-assets.com/files/thumbor/velDgOnJ4vMdXclF3iGXKBml2bA/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2018/01/11/067/n/1922153/2dcec7385a580320b4a0f3.56523054_edit_img_image_17359799_1515715881/i/Gal-Gadot-Makeup-Critics-Choice-Awards-2018.jpg";
+
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ChatScreen(own_id,own_name,own_photo,partner_id,partner_name,parner_photo,chatRoom
+
+                                  )));
+                        },
+                        child: Card(
+                            child: (UID == (lists[index]["sender_id"]))
+                                ? ListTile(
+                                    leading: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                      "http://telemedicine.drshahidulislam.com/" +
+                                          lists[index]["receiver_photo"],
+                                    )),
+                                    title: Text(lists[index]["receiver_name"]),
+                                    subtitle: (lists[index]["message_body"])
+                                            .toString()
+                                            .startsWith("http")
+                                        ? Text("Photo")
+                                        : Text((lists[index]["message_body"])
+                                            .toString()),
+                                  )
+                                : ListTile(
+                                    leading: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                      "http://telemedicine.drshahidulislam.com/" +
+                                          lists[index]["sender_photo"],
+                                    )),
+                                    title: Text(lists[index]["sender_name"]),
+                                    subtitle: (lists[index]["message_body"])
+                                            .toString()
+                                            .startsWith("http")
+                                        ? Text("Photo")
+                                        : Text((lists[index]["message_body"])
+                                            .toString()),
+                                  )),
+                      );
+                    })
+                : Center(
+                    child: Text("No Chat History"),
+                  );
+          }
+          return Center(
+            child: Text("No Chat History"),
+          );
+        }),
+  );
+}
+
+String createChatRoomName(int one, int two) {
+  if (one > two) {
+    return (one.toString() + "-" + two.toString());
+  } else {
+    return (two.toString() + "-" + one.toString());
+  }
+}
+
+Widget getChatList() {
+  final dbRef = FirebaseDatabase.instance.reference().child("xploreDoc");
 }
 
 void showThisToast(String s) {

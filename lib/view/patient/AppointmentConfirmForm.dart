@@ -8,7 +8,8 @@ import 'package:appxplorebd/networking/ApiProvider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
-String dID,cID;
+String dID, cID;
+String DATE = "";
 
 class AppointmentConfirmForm___ extends StatelessWidget {
   @override
@@ -21,7 +22,7 @@ class AppointmentConfirmForm___ extends StatelessWidget {
         appBar: AppBar(
           title: Text(appTitle),
         ),
-        body: AppointmentConfirmForm("",""),
+        body: AppointmentConfirmForm("", "",""),
       ),
     );
   }
@@ -29,14 +30,9 @@ class AppointmentConfirmForm___ extends StatelessWidget {
 
 // Create a Form widget.
 class AppointmentConfirmForm extends StatefulWidget {
-  String docID_,chamberID_;
-  AppointmentConfirmForm(this.docID_, this.chamberID_);
+  String docID_, chamberID_, SELECTED_DATE;
 
-
-
-
-
-
+  AppointmentConfirmForm(this.docID_, this.chamberID_, this.SELECTED_DATE);
 
   @override
   MyCustomFormState createState() {
@@ -56,7 +52,7 @@ class MyCustomFormState extends State<AppointmentConfirmForm> {
   String name, problem, contact;
   String myMessage = "Login";
 
-  Widget StandbyWid = Text("Submit",style: TextStyle(color: Colors.white));
+  Widget StandbyWid = Text("Submit", style: TextStyle(color: Colors.white));
   LoginResponse _loginResponse;
 
   @override
@@ -70,7 +66,8 @@ class MyCustomFormState extends State<AppointmentConfirmForm> {
           Padding(
             padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
             child: ListTile(
-              title: Text("Write your name",style: TextStyle(color: Colors.pink)),
+              title:
+                  Text("Write your name", style: TextStyle(color: Colors.pink)),
               subtitle: TextFormField(
                 initialValue: "",
                 validator: (value) {
@@ -86,8 +83,10 @@ class MyCustomFormState extends State<AppointmentConfirmForm> {
           Padding(
             padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
             child: ListTile(
-              title: Text("Write your problems/symptoms",style: TextStyle(color: Colors.pink),),
-
+              title: Text(
+                "Write your problems/symptoms",
+                style: TextStyle(color: Colors.pink),
+              ),
               subtitle: TextFormField(
                 initialValue: "",
                 validator: (value) {
@@ -103,9 +102,9 @@ class MyCustomFormState extends State<AppointmentConfirmForm> {
           Padding(
             padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
             child: ListTile(
-              title: Text("Write your contact number",style: TextStyle(color: Colors.pink)),
+              title: Text("Write your contact number",
+                  style: TextStyle(color: Colors.pink)),
               subtitle: TextFormField(
-
                 initialValue: "",
                 validator: (value) {
                   contact = value;
@@ -118,12 +117,9 @@ class MyCustomFormState extends State<AppointmentConfirmForm> {
             ),
           ),
           Center(
-
             child: Padding(
-
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: RaisedButton(
-
                 color: Colors.pink,
                 onPressed: () async {
                   // Validate returns true if the form is valid, or false
@@ -131,22 +127,33 @@ class MyCustomFormState extends State<AppointmentConfirmForm> {
                   if (_formKey.currentState.validate()) {
                     // If the form is valid, display a Snackbar.
                     setState(() {
-                      StandbyWid = Text("Please wait",style: TextStyle(color: Colors.white),);
+                      StandbyWid = Text(
+                        "Please wait",
+                        style: TextStyle(color: Colors.white),
+                      );
                     });
 
                     showThisToast("going to hit appint submit");
 
-                 var   appointmentSubmitRespons  =
-                    await performAppointmentSubmit(USER_ID,widget.docID_,problem,contact,name, widget.chamberID_,"08/08/2020","0","n");
+                    var appointmentSubmitRespons =
+                        await performAppointmentSubmit(
+                            USER_ID,
+                            widget.docID_,
+                            problem,
+                            contact,
+                            name,
+                            widget.chamberID_,
+                            widget.SELECTED_DATE,
+                            "0",
+                            "n");
                     showThisToast(appointmentSubmitRespons["message"]);
-                    if(appointmentSubmitRespons["status"]){
+                    if (appointmentSubmitRespons["status"]) {
                       Navigator.of(context).pop(true);
                       Navigator.of(context).pop(true);
                       Navigator.of(context).pop(true);
                       Navigator.of(context).pop(true);
                       Navigator.of(context).pop(true);
                     }
-
                   }
                 },
                 child: StandbyWid,
