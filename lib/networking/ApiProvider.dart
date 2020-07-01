@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:appxplorebd/models/login_response.dart';
 import 'package:appxplorebd/networking/CustomException.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,10 @@ import 'dart:async';
 
   String AUTH_KEY= "";
   String USER_ID= "";
+  String USER_NAME= "";
+  String USER_PHOTO ="";
+  String USER_MOBILE ="";
+  String USER_EMAIL ="";
 
 
   final String _baseUrl = "http://telemedicine.drshahidulislam.com/api/";
@@ -23,7 +29,13 @@ import 'dart:async';
     );
     showThisToast(response.statusCode.toString());
     if (response.statusCode == 200) {
-      return LoginResponse.fromJson(json.decode(response.body));
+      LoginResponse loginResponse =LoginResponse.fromJson(json.decode(response.body));
+      USER_NAME = loginResponse.userInfo.name;
+      USER_PHOTO = loginResponse.userInfo.photo;
+      USER_MOBILE = loginResponse.userInfo.phone;
+      USER_EMAIL = loginResponse.userInfo.email;
+      showThisToast("phoyo link "+USER_PHOTO);
+      return loginResponse;
     } else {
       throw Exception('Failed to load album');
     }
@@ -64,6 +76,27 @@ import 'dart:async';
 
     );
     showThisToast(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+     // return LoginResponse.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load album');
+    }
+  }
+  Future<dynamic> updateDisplayName(String name) async {
+    final http.Response response = await http.post(
+      _baseUrl + 'update-user-info',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(<String, String>{
+      'name': name,
+      'user_id':USER_ID
+    }),
+
+    );
+   // showThisToast(response.statusCode.toString());
     if (response.statusCode == 200) {
       return json.decode(response.body);
      // return LoginResponse.fromJson(json.decode(response.body));

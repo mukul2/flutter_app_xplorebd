@@ -10,6 +10,7 @@ import 'package:appxplorebd/chat/service/authentication.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 String CLIEND_ID = "xploreDoc";
+
 class ChatScreen extends StatefulWidget {
   ChatScreen( this.partner_id,
       this.partner_name,
@@ -45,6 +46,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final DatabaseReference _messageDatabaseReference;
   final StorageReference _photoStorageReference;
 
+
   bool _isComposing = false;
 
   ChatScreenState()
@@ -55,7 +57,8 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         _messageDatabaseReference =
         FirebaseDatabase.instance.reference().child(CLIEND_ID).child("chatHistory").child("2-11"),
         _photoStorageReference =
-        FirebaseStorage.instance.ref().child("chat_photos") {
+        FirebaseStorage.instance.ref().child("chat_photos",
+        ) {
     _messageDatabaseReference.onChildAdded.listen(_onMessageAdded);
   }
 
@@ -121,7 +124,6 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     final recever_id = event.snapshot.value["recever_id"];
     final sender_id = event.snapshot.value["sender_id"];
     final time = event.snapshot.value["time"];
-
 //    ChatMessage message = imageUrl == null
 //        ? _createMessageFromText(text)
 //        : _createMessageFromImage(imageUrl);

@@ -57,7 +57,7 @@ class MyCustomFormState extends State<MyCustomForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           TextFormField(
-            initialValue: "m@gmail.com",
+            initialValue: "p@gmail.com",
             validator: (value) {
               email = value;
               if (value.isEmpty) {
@@ -98,9 +98,13 @@ class MyCustomFormState extends State<MyCustomForm> {
                     AUTH_KEY ="Bearer "+ loginResponse.accessToken;
                     USER_ID =loginResponse.userInfo.id.toString();
                     if (loginResponse.userInfo.userType.contains("d")) {
+                      showThisToast("doctor");
+
                       //doctor
                     } else if (loginResponse.userInfo.userType.contains("p")) {
                       //patient
+                      showThisToast("patient");
+
                       mainP();
 //                      Navigator.push(
 //                          context, MaterialPageRoute(builder: (context) => PatientAPP()));

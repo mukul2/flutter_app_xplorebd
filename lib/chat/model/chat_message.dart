@@ -1,5 +1,10 @@
+import 'package:appxplorebd/networking/ApiProvider.dart';
+import 'package:appxplorebd/view/patient/patient_view.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+String UID = "2";
 
 class ChatMessage extends StatelessWidget {
   final String message_body_;
@@ -23,12 +28,13 @@ class ChatMessage extends StatelessWidget {
         time_ = time,
         animationController = animationController;
 
-  Map<String, dynamic> toMap() => {'message_body': message_body_,
-    'message_type': message_type_,
-    'recever_id': recever_id_,
-    'sender_id': sender_id_,
-    'time': time_,
-  };
+  Map<String, dynamic> toMap() => {
+        'message_body': message_body_,
+        'message_type': message_type_,
+        'recever_id': recever_id_,
+        'sender_id': sender_id_,
+        'time': time_,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -39,24 +45,57 @@ class ChatMessage extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 10.0),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: (UID == sender_id_
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.end),
             children: <Widget>[
-              Container(
-                margin: const EdgeInsets.only(right: 16.0),
-                child: CircleAvatar(backgroundColor: Colors.pink,)),
-
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (UID == sender_id_
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.end),
                   children: <Widget>[
-
                     Container(
                       margin: const EdgeInsets.only(top: 5.0),
                       child: message_type_ == "TYPE_TEXT"
-                          ? Text(message_body_)
-                          : Image.network(message_body_),
+                          ? (UID == sender_id_
+                              ? (Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Container(
+                                    color: Colors.pink,
+                                    margin: EdgeInsets.fromLTRB(00, 50, 00, 0),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Text(
+                                        message_body_,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ))
+                              : (Container(
+                                  color: Colors.blueAccent,
+                                  margin: EdgeInsets.fromLTRB(50, 0, 00, 0),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(10),
+                                    child: Text(message_body_,
+                                        style: TextStyle(color: Colors.white)),
+                                  ),
+                                )))
+                          : UID == sender_id_
+                              ? (Container(
+                                  height: 300,
+                                  margin: EdgeInsets.fromLTRB(00, 00, 50, 0),
+                                  child: Image.network(message_body_),
+                                ))
+                              : Container(
+                                  height: 300,
+                                  margin: EdgeInsets.fromLTRB(50, 00, 00, 0),
+                                  child: Image.network(message_body_),
+                                ),
                     ),
-
                   ],
                 ),
               ),

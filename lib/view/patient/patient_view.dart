@@ -1,6 +1,9 @@
 import 'dart:convert';
-import 'dart:io' show Platform;
-
+import 'dart:io' show File, Platform;
+import 'package:path/path.dart';
+import 'package:async/async.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:appxplorebd/chat/model/chat_screen.dart';
 import 'package:appxplorebd/chat/model/root_page.dart';
 import 'package:appxplorebd/chat/service/authentication.dart';
@@ -8,13 +11,23 @@ import 'package:appxplorebd/networking/ApiProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'SubscriptionsActivityPatient.dart';
 import 'departments_for_chamber_doc.dart';
 import 'departments_for_online_doc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+var OWN_PHOTO;
+
+var PARTNER_PHOTO;
+
 final String _baseUrl = "http://telemedicine.drshahidulislam.com/api/";
+final String _baseUrl_image = "http://telemedicine.drshahidulislam.com/";
+var header = <String, String>{
+  'Content-Type': 'application/json; charset=UTF-8',
+  'Authorization': AUTH_KEY,
+};
 
 void mainP() {
   runApp(PatientAPP());
@@ -125,7 +138,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ProjNotification(),
         Profile(),
         Appointment(),
-        Blog(),
+        BlogActivityWithState(),
       ],
     );
   }
@@ -367,10 +380,46 @@ class ProjNotification extends StatefulWidget {
 class _ProjNotificationState extends State<ProjNotification> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text("Notification"),
-    );
+    return NoticeList();
   }
+}
+
+Widget NoticeList() {
+  return Scaffold(
+      body: FutureBuilder(
+          future: fetchNotices(),
+          builder: (context, projectSnap) {
+            return (false)
+                ? Center(child: CircularProgressIndicator())
+                : new ListView.builder(
+                    itemCount:
+                        projectSnap.data == null ? 0 : projectSnap.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return new InkWell(
+                          onTap: () {},
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(15),
+                              child: ListTile(
+                                trailing: Icon(Icons.keyboard_arrow_right),
+                                leading: Icon(Icons.notifications),
+                                title: new Text(
+                                  projectSnap.data[index]["message"],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: new Text(
+                                  projectSnap.data[index]["created_at"],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ));
+                    },
+                  );
+          }));
 }
 
 class Profile extends StatefulWidget {
@@ -382,7 +431,42 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text("Profile"),
+      child: ListView(
+        children: <Widget>[
+          ListTile(
+            onTap: () {
+              //BasicProfileActivity
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => BasicProfile()));
+            },
+            trailing: Icon(Icons.keyboard_arrow_right),
+            title: Text("Basic Information"),
+            subtitle: Text("Update name,photo"),
+            leading: Icon(Icons.supervised_user_circle),
+          ),
+          Divider(),
+          ListTile(
+            trailing: Icon(Icons.keyboard_arrow_right),
+            title: Text("Disease History"),
+            subtitle: Text("Add/View your diseases history"),
+            leading: Icon(Icons.supervised_user_circle),
+          ),
+          Divider(),
+          ListTile(
+            trailing: Icon(Icons.keyboard_arrow_right),
+            title: Text("Prescriptions"),
+            subtitle: Text("Add/View your prescriptions"),
+            leading: Icon(Icons.supervised_user_circle),
+          ),
+          Divider(),
+          ListTile(
+            trailing: Icon(Icons.keyboard_arrow_right),
+            title: Text("Prescription Review"),
+            subtitle: Text("View your prescription request and responses"),
+            leading: Icon(Icons.supervised_user_circle),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -497,7 +581,7 @@ Widget PedingList() {
                                 trailing: Icon(Icons.keyboard_arrow_right),
                                 leading: CircleAvatar(
                                     backgroundImage: NetworkImage(
-                                  "http://telemedicine.drshahidulislam.com/" +
+                                  _baseUrl_image +
                                       projectSnap.data[index]["dr_info"]
                                           ["photo"],
                                 )),
@@ -558,6 +642,26 @@ Future<dynamic> fetchPeding() async {
     showThisToast("size " + (data_Confirmd.length).toString());
     return json.decode(response.body);
     // return LoginResponse.fromJson(json.decode(response.body));
+  } else {
+    throw Exception('Failed to load album');
+  }
+}
+
+Future<dynamic> fetchNotices() async {
+  showThisToast("going to fetch noticies list");
+  final http.Response response = await http.post(
+    _baseUrl + 'getMyNotices',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': AUTH_KEY,
+    },
+    body: jsonEncode(<String, String>{'user_id': USER_ID}),
+  );
+
+  if (response.statusCode == 200) {
+    List noti = json.decode(response.body);
+    showThisToast("noti sixe " + noti.length.toString());
+    return json.decode(response.body);
   } else {
     throw Exception('Failed to load album');
   }
@@ -677,6 +781,445 @@ class ChatListActivity extends StatelessWidget {
   }
 }
 
+class BasicProfile extends StatefulWidget {
+  @override
+  _BasicProfileState createState() => _BasicProfileState();
+}
+
+class _BasicProfileState extends State<BasicProfile> {
+  String user_name_from_state = USER_NAME;
+  String user_picture = USER_PHOTO;
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Profile Information State"),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Center(
+              child: InkWell(
+            onTap: () async {
+              File image =
+                  await ImagePicker.pickImage(source: ImageSource.gallery);
+              var stream =
+                  new http.ByteStream(DelegatingStream.typed(image.openRead()));
+              var length = await image.length();
+
+              var uri = Uri.parse(_baseUrl + "update-user-info");
+
+              var request = new http.MultipartRequest("POST", uri);
+              var multipartFile = new http.MultipartFile(
+                  'photo', stream, length,
+                  filename: basename(image.path));
+              //contentType: new MediaType('image', 'png'));
+
+              request.files.add(multipartFile);
+              request.fields.addAll(<String, String>{'user_id': USER_ID});
+              request.headers.addAll(<String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Authorization': AUTH_KEY,
+              });
+              showThisToast(request.toString());
+
+              var response = await request.send();
+
+              print(response.statusCode);
+              showThisToast(response.statusCode.toString());
+
+              response.stream.transform(utf8.decoder).listen((value) {
+                //print(value);
+                //showThisToast(value);
+
+                var data = jsonDecode(value);
+                //showThisToast(data.t);
+                showThisToast(data.toString());
+                setState(() {
+                  user_picture = (data["photo"]).toString();
+                  USER_PHOTO = user_picture;
+                });
+              });
+            },
+            child: Image.network(
+              _baseUrl_image + user_picture,
+              width: 250,
+              height: 250,
+            ),
+          )),
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Card(
+              child: ListTile(
+                onTap: () {
+                  final _formKey = GlobalKey<FormState>();
+                  String newName;
+                  return showDialog<void>(
+                    context: context,
+                    barrierDismissible: false, // user must tap button!
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Edit Display Name'),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: <Widget>[
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    TextFormField(
+                                      initialValue: USER_NAME,
+                                      validator: (value) {
+                                        newName = value;
+                                        if (value.isEmpty) {
+                                          return 'Please enter Display Name';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text('Cancel'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          FlatButton(
+                            child: Text('Update'),
+                            onPressed: () {
+                              if (_formKey.currentState.validate()) {
+                                var status = updateDisplayName(newName);
+                                USER_NAME = newName;
+                                setState(() {
+                                  user_name_from_state = newName;
+                                });
+                                status.then(
+                                    (value) => Navigator.of(context).pop());
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                subtitle: Padding(
+                  padding: EdgeInsets.fromLTRB(00, 00, 00, 00),
+                  child: Text(user_name_from_state),
+                ),
+                title: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(0, 00, 00, 00),
+                      child: Text("Display Name"),
+                    ),
+                    Padding(
+                      child: Text(
+                        "EDIT",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      padding: EdgeInsets.fromLTRB(10, 00, 00, 00),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Card(
+              child: ListTile(
+                subtitle: Padding(
+                  padding: EdgeInsets.fromLTRB(00, 00, 00, 00),
+                  child: Text(USER_MOBILE),
+                ),
+                title: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(0, 00, 00, 00),
+                      child: Text("Phone Name"),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Card(
+              child: ListTile(
+                subtitle: Padding(
+                  padding: EdgeInsets.fromLTRB(00, 00, 00, 00),
+                  child: Text(USER_EMAIL),
+                ),
+                title: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(0, 00, 00, 00),
+                      child: Text("Email"),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class BasicProfileActivity extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Profile Information"),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Center(
+              child: Image.network(
+            "https://cdnph.upi.com/svc/sv/upi/7371577364249/2019/1/054ab8e380c0922db843a715455feaf7/Gal-Gadot-to-co-produce-adaptation-of-novel-banned-in-Israeli-schools.jpg",
+            width: 150,
+            height: 150,
+          )),
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Card(
+              child: ListTile(
+                onTap: () {
+                  showNameEditDialog(context);
+                },
+                subtitle: Padding(
+                  padding: EdgeInsets.fromLTRB(00, 00, 00, 00),
+                  child: Text(USER_NAME),
+                ),
+                title: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(0, 00, 00, 00),
+                      child: Text("Display Name"),
+                    ),
+                    Padding(
+                      child: Text(
+                        "EDIT",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      padding: EdgeInsets.fromLTRB(10, 00, 00, 00),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class BlogActivityWithState extends StatefulWidget {
+  @override
+  _BlogActivityWithStateState createState() => _BlogActivityWithStateState();
+}
+
+class _BlogActivityWithStateState extends State<BlogActivityWithState> {
+  List blogCategoryList = [];
+  List blogList = [];
+  int _value = 0;
+
+  Future<String> getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'allBlogCategory',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+    );
+    this.setState(() {
+      blogCategoryList = json.decode(response.body);
+    });
+    return "Success!";
+  }
+
+  Future<String> getBlogs() async {
+    showThisToast("Hit to download blogs "+(blogCategoryList[_value]["id"]).toString());
+    final http.Response response = await http.post(
+      _baseUrl + 'all-blog-info',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(<String, String>{
+        'blog_category': (blogCategoryList[_value]["id"]).toString()
+      }),
+    );
+    this.setState(() {
+      blogList = json.decode(response.body);
+      showThisToast("blog size "+(blogList.length).toString());
+
+    });
+    return "Success!";
+  }
+
+  @override
+  void initState() {
+    this.getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Column(
+      children: <Widget>[
+        Wrap(
+          children: List<Widget>.generate(
+            blogCategoryList.length,
+            (int index) {
+              return ChoiceChip(
+                label: Text(blogCategoryList[index]["name"]),
+                selected: _value == index,
+                onSelected: (bool selected) async {
+
+                  setState(() {
+                    _value = selected ? index : null;
+
+                  });
+                  showThisToast("Hit to download blogs "+(blogCategoryList[_value]["id"]).toString());
+                  final http.Response response = await http.post(
+                    _baseUrl + 'all-blog-info',
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                      'Authorization': AUTH_KEY,
+                    },
+                    body: jsonEncode(<String, String>{
+                      'blog_category': (blogCategoryList[_value]["id"]).toString()
+                    }),
+                  );
+                  this.setState(() {
+                    blogList = json.decode(response.body);
+                    showThisToast("blog size "+(blogList.length).toString());
+
+                  });
+                },
+              );
+            },
+          ).toList(),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount:
+          blogList == null ? 0 : blogList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+              height: 300 ,
+              child: InkWell(
+
+                  onTap: () {},
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(0),
+                      child: Column(
+                        children: <Widget>[
+                          ListTile(
+
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage((_baseUrl_image+(blogList[index]["dr_info"]["photo"]).toString())),
+                            ),
+                            title: new Text(
+                              blogList[index]["title"],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: new Text(
+                              (blogList[index]["dr_info"]["name"]).toString(),
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          new Expanded(child: new Image.network(
+                            (_baseUrl_image+(blogList[index]["photo_info"][0]["photo"]).toString()),fit: BoxFit.fitWidth,height: 250,),),
+
+
+                        ],
+                      ),
+                    ),
+                  )),
+            ) ;
+          },
+        )
+
+      ],
+    );
+  }
+}
+
+Future<void> showNameEditDialog(BuildContext context) async {
+  final _formKey = GlobalKey<FormState>();
+  String newName;
+
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Edit Display Name'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    TextFormField(
+                      initialValue: USER_NAME,
+                      validator: (value) {
+                        newName = value;
+                        if (value.isEmpty) {
+                          return 'Please enter Display Name';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          FlatButton(
+            child: Text('Update'),
+            onPressed: () {
+              if (_formKey.currentState.validate()) {
+                var status = updateDisplayName(newName);
+                status.then((value) => Navigator.of(context).pop());
+              }
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 Widget ChatListWidget(BuildContext context) {
   // String UID = USER_ID;
   String UID = "2";
@@ -706,23 +1249,29 @@ Widget ChatListWidget(BuildContext context) {
                     itemBuilder: (BuildContext context, int index) {
                       return InkWell(
                         onTap: () {
-                          String chatRoom = createChatRoomName(
-                             2,
-                              11);
+                          String chatRoom = createChatRoomName(2, 11);
                           String own_id = "2";
                           String own_name = "Brie Larsson";
-                          String own_photo = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSQkxmFzA0ekvItbzZh7n2irqs2nuSCK1K8-Q&usqp=CAU";
+                          String own_photo =
+                              "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSQkxmFzA0ekvItbzZh7n2irqs2nuSCK1K8-Q&usqp=CAU";
                           String partner_id = "11";
                           String partner_name = "Gal Gadot";
-                          String parner_photo = "https://media1.popsugar-assets.com/files/thumbor/velDgOnJ4vMdXclF3iGXKBml2bA/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2018/01/11/067/n/1922153/2dcec7385a580320b4a0f3.56523054_edit_img_image_17359799_1515715881/i/Gal-Gadot-Makeup-Critics-Choice-Awards-2018.jpg";
+                          String parner_photo =
+                              "https://media1.popsugar-assets.com/files/thumbor/velDgOnJ4vMdXclF3iGXKBml2bA/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2018/01/11/067/n/1922153/2dcec7385a580320b4a0f3.56523054_edit_img_image_17359799_1515715881/i/Gal-Gadot-Makeup-Critics-Choice-Awards-2018.jpg";
 
-
+                          OWN_PHOTO = own_photo;
+                          PARTNER_PHOTO = parner_photo;
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ChatScreen(own_id,own_name,own_photo,partner_id,partner_name,parner_photo,chatRoom
-
-                                  )));
+                                  builder: (context) => ChatScreen(
+                                      own_id,
+                                      own_name,
+                                      own_photo,
+                                      partner_id,
+                                      partner_name,
+                                      parner_photo,
+                                      chatRoom)));
                         },
                         child: Card(
                             child: (UID == (lists[index]["sender_id"]))
