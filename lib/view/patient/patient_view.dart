@@ -18,6 +18,8 @@ import 'departments_for_online_doc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import 'myYoutubePlayer.dart';
+
 var OWN_PHOTO;
 
 var PARTNER_PHOTO;
@@ -178,6 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.pink,
+        elevation: 0.0,
       ),
       drawer: myDrawer(),
       body: buildPageView(),
@@ -203,33 +206,118 @@ class _HomeState extends State<Home> {
     return SingleChildScrollView(
         child: Column(
       children: <Widget>[
-        Padding(
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: Text(
-            "What are you looking for",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: Card(
-            child: ListTile(
-              title: Text("Search for Doctor or Medicine"),
-              leading: Icon(
-                Icons.search,
-                color: Colors.black,
+        Container(
+          height: 200,
+          child: Stack(
+            children: <Widget>[
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 80,
+                child: Container(
+                  color: Colors.pink,
+                ),
               ),
-            ),
+              Positioned(
+                top: 00,
+                left: 0,
+                right: 0,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0),
+                        ),
+                        child: ListTile(
+                          title: Text("Search for Doctor or Medicine"),
+                          leading: Icon(
+                            Icons.search,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 130,
+                      child: ListView(
+                        shrinkWrap: true,
+
+                        // This next line does the trick.
+                        scrollDirection: Axis.horizontal,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Card(
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Container(
+                                  child: Center(
+                                    child: Text(
+                                      "Slider Item",
+                                      style: TextStyle(color: Colors.pink),
+                                    ),
+                                  ),
+                                  height: 100,
+                                  width: 360.0,
+                                )),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Card(
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Container(
+                                  child: Center(
+                                    child: Text(
+                                      "Slider Item",
+                                      style: TextStyle(color: Colors.pink),
+                                    ),
+                                  ),
+                                  height: 100,
+                                  width: 360.0,
+                                )),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Card(
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                child: Container(
+                                  child: Center(
+                                    child: Text(
+                                      "Slider Item",
+                                      style: TextStyle(color: Colors.pink),
+                                    ),
+                                  ),
+                                  height: 100,
+                                  width: 360.0,
+                                )),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         GridView.count(
           shrinkWrap: true,
           primary: false,
-          padding: const EdgeInsets.all(20),
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          crossAxisCount: 2,
+          padding: const EdgeInsets.all(10),
+          crossAxisSpacing: 1,
+          mainAxisSpacing: 1,
+          crossAxisCount: 3,
           children: <Widget>[
             InkWell(
                 onTap: () {
@@ -240,12 +328,14 @@ class _HomeState extends State<Home> {
                       ));
                 },
                 child: Container(
-                  width: 100,
                   height: 100,
                   child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                    ),
                     color: Colors.white,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Padding(
                           padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
@@ -258,8 +348,7 @@ class _HomeState extends State<Home> {
                         ),
                         Container(
                           padding: const EdgeInsets.all(8),
-                          child:
-                              const Text("I need to consult an Online Doctor"),
+                          child: const Text("Online Doctor"),
                           color: Colors.white,
                         )
                       ],
@@ -274,12 +363,14 @@ class _HomeState extends State<Home> {
                           builder: (context) => DeptChamberDocWidget(context)));
                 },
                 child: Container(
-                  width: 100,
                   height: 100,
                   child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                    ),
                     color: Colors.white,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Padding(
                           padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
@@ -292,7 +383,7 @@ class _HomeState extends State<Home> {
                         ),
                         Container(
                           padding: const EdgeInsets.all(8),
-                          child: const Text("Find the best Doctor near you"),
+                          child: const Text("Chamber Doctor"),
                           color: Colors.white,
                         )
                       ],
@@ -307,12 +398,14 @@ class _HomeState extends State<Home> {
                           builder: (context) => SubscriptionViewPatient()));
                 },
                 child: Container(
-                  width: 100,
                   height: 100,
                   child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                    ),
                     color: Colors.white,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Padding(
                           padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
@@ -343,9 +436,12 @@ class _HomeState extends State<Home> {
                   width: 100,
                   height: 100,
                   child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                    ),
                     color: Colors.white,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Padding(
                           padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
@@ -365,8 +461,78 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 )),
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SubscriptionViewPatient()));
+                },
+                child: Container(
+                  height: 100,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                    ),
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                          child: Image.asset(
+                            "assets/doctor.png",
+                            width: 30,
+                            height: 30,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          child: const Text("Ambulance"),
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  ),
+                )),
+            InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChatListActivity()));
+                },
+                child: Container(
+                  height: 100,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                    ),
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                          child: Image.asset(
+                            "assets/doctor.png",
+                            width: 30,
+                            height: 30,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          child: const Text("Blood Bank"),
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  ),
+                )),
           ],
-        )
+        ),
       ],
     ));
   }
@@ -446,6 +612,10 @@ class _ProfileState extends State<Profile> {
           ),
           Divider(),
           ListTile(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => DiseasesWidget()));
+            },
             trailing: Icon(Icons.keyboard_arrow_right),
             title: Text("Disease History"),
             subtitle: Text("Add/View your diseases history"),
@@ -763,6 +933,33 @@ class DeptOnlineActivity extends StatelessWidget {
   }
 }
 
+Widget BlogDetailsWidget(blogdata) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(blogdata["title"].toString()),
+    ),
+    body: SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          (blogdata["youtube_video"] == null)
+              ? Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Image.network(
+                      _baseUrl_image + blogdata["photo_info"][0]["photo"]),
+                )
+              : Container(
+                  height: 250,
+                  child: MyHomePageYoutube(),
+                ),
+          Text(
+            blogdata["body"].toString(),
+          )
+        ],
+      ),
+    ),
+  );
+}
+
 class ChatListActivity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -1047,12 +1244,14 @@ class _BlogActivityWithStateState extends State<BlogActivityWithState> {
     );
     this.setState(() {
       blogCategoryList = json.decode(response.body);
+      getBlogs();
     });
     return "Success!";
   }
 
   Future<String> getBlogs() async {
-    showThisToast("Hit to download blogs "+(blogCategoryList[_value]["id"]).toString());
+    showThisToast(
+        "Hit to download blogs " + (blogCategoryList[_value]["id"]).toString());
     final http.Response response = await http.post(
       _baseUrl + 'all-blog-info',
       headers: <String, String>{
@@ -1065,8 +1264,7 @@ class _BlogActivityWithStateState extends State<BlogActivityWithState> {
     );
     this.setState(() {
       blogList = json.decode(response.body);
-      showThisToast("blog size "+(blogList.length).toString());
-
+      showThisToast("blog size " + (blogList.length).toString());
     });
     return "Success!";
   }
@@ -1089,12 +1287,11 @@ class _BlogActivityWithStateState extends State<BlogActivityWithState> {
                 label: Text(blogCategoryList[index]["name"]),
                 selected: _value == index,
                 onSelected: (bool selected) async {
-
                   setState(() {
                     _value = selected ? index : null;
-
                   });
-                  showThisToast("Hit to download blogs "+(blogCategoryList[_value]["id"]).toString());
+                  showThisToast("Hit to download blogs " +
+                      (blogCategoryList[_value]["id"]).toString());
                   final http.Response response = await http.post(
                     _baseUrl + 'all-blog-info',
                     headers: <String, String>{
@@ -1102,63 +1299,88 @@ class _BlogActivityWithStateState extends State<BlogActivityWithState> {
                       'Authorization': AUTH_KEY,
                     },
                     body: jsonEncode(<String, String>{
-                      'blog_category': (blogCategoryList[_value]["id"]).toString()
+                      'blog_category':
+                          (blogCategoryList[_value]["id"]).toString()
                     }),
                   );
                   this.setState(() {
                     blogList = json.decode(response.body);
-                    showThisToast("blog size "+(blogList.length).toString());
-
+                    showThisToast("blog size " + (blogList.length).toString());
                   });
                 },
               );
             },
           ).toList(),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount:
-          blogList == null ? 0 : blogList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Container(
-              height: 300 ,
-              child: InkWell(
-
-                  onTap: () {},
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(0),
-                      child: Column(
-                        children: <Widget>[
-                          ListTile(
-
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage((_baseUrl_image+(blogList[index]["dr_info"]["photo"]).toString())),
-                            ),
-                            title: new Text(
-                              blogList[index]["title"],
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: new Text(
-                              (blogList[index]["dr_info"]["name"]).toString(),
-                              style: TextStyle(fontWeight: FontWeight.bold),
+        (blogList.length > 0)
+            ? ListView.builder(
+                shrinkWrap: true,
+                itemCount: blogList == null ? 0 : blogList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(
+                    height: 300,
+                    child: InkWell(
+                        onTap: () {
+                          LinkToPlay =
+                              (blogList[index]["youtube_video"].toString())
+                                  .replaceAll("https://youtu.be/", "");
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      BlogDetailsWidget(blogList[index])));
+                        },
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(0.0),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(0),
+                            child: Column(
+                              children: <Widget>[
+                                ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        (_baseUrl_image +
+                                            (blogList[index]["dr_info"]
+                                                    ["photo"])
+                                                .toString())),
+                                  ),
+                                  title: new Text(
+                                    blogList[index]["title"],
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  subtitle: new Text(
+                                    (blogList[index]["dr_info"]["name"])
+                                        .toString(),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                new Expanded(
+                                  child: new Image.network(
+                                    (_baseUrl_image +
+                                        (blogList[index]["photo_info"][0]
+                                                ["photo"])
+                                            .toString()),
+                                    fit: BoxFit.fitWidth,
+                                    height: 250,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          new Expanded(child: new Image.network(
-                            (_baseUrl_image+(blogList[index]["photo_info"][0]["photo"]).toString()),fit: BoxFit.fitWidth,height: 250,),),
-
-
-                        ],
-                      ),
-                    ),
-                  )),
-            ) ;
-          },
-        )
-
+                        )),
+                  );
+                },
+              )
+            : Container(
+                height: 200,
+                child: Center(
+                  child: Text("No Blog Post"),
+                ),
+              )
       ],
     );
   }
@@ -1326,6 +1548,182 @@ String createChatRoomName(int one, int two) {
 
 Widget getChatList() {
   final dbRef = FirebaseDatabase.instance.reference().child("xploreDoc");
+}
+
+class DiseasesWidget extends StatefulWidget {
+  @override
+  _DiseasesWidgetState createState() => _DiseasesWidgetState();
+}
+
+class _DiseasesWidgetState extends State<DiseasesWidget> {
+  List diseasesList = [];
+  DateTime selectedDate = DateTime.now();
+  String  selctedDate_ = DateTime.now().toIso8601String();
+  String dateToUpdate =  (DateTime.now().year).toString()+"-"+(DateTime.now().month).toString()+"-"+(DateTime.now().day).toString() ;
+  Future<Null> _selectDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+        selctedDate_ = selectedDate.toIso8601String();
+        dateToUpdate = (picked.year).toString()+"-"+(picked.month).toString()+"-"+(picked.day).toString();
+
+      });
+  }
+  Future<String> getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'patient-disease-record',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(<String, String>{'patient_id': USER_ID}),
+    );
+    this.setState(() {
+      diseasesList = json.decode(response.body);
+    });
+    return "Success!";
+  }
+
+  void closeAndUpdate(BuildContext context) {
+    Navigator.of(context).pop();
+    this.getData();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    this.getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Diseaes History"),
+      ),
+      body: (diseasesList != null && diseasesList.length > 0)
+          ? new ListView.builder(
+              itemCount: diseasesList == null ? 0 : diseasesList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new InkWell(
+                    onTap: () {},
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(00.0),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(05),
+                        child: ListTile(
+                          trailing: Icon(Icons.keyboard_arrow_right),
+                          leading: Icon(Icons.accessible_forward),
+                          title: new Text(
+                            diseasesList[index]["disease_name"],
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: new Text(
+                            diseasesList[index]["first_notice_date"],
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ));
+              },
+            )
+          : Container(
+              height: 200,
+              child: Center(
+                child: Text("No Diseases History"),
+              )),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          final _formKey = GlobalKey<FormState>();
+          String diseaesName, currentStatus, firstNoticeDate;
+          return showDialog<void>(
+            context: context,
+            barrierDismissible: false, // user must tap button!
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Diseases Information'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text("Diseases name"),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(00, 00, 00, 10),
+                              child: TextFormField(
+                                validator: (value) {
+                                  diseaesName = value;
+                                  if (value.isEmpty) {
+                                    return 'Please enter Diseases Name';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Text("First notice date"),
+                            RaisedButton(
+                              onPressed: () => _selectDate(context),
+                              child: Text('Select date'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(00, 00, 00, 10),
+                              child: Text(dateToUpdate)
+                            ),
+                            Text("Current status"),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(00, 00, 00, 10),
+                              child: TextFormField(
+                                validator: (value) {
+                                  currentStatus = value;
+                                  if (value.isEmpty) {
+                                    return 'Please enter current status';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: Text('Update'),
+                    onPressed: () {
+                      if (_formKey.currentState.validate()) {
+                        var status = addDiseasesHistory(
+                            diseaesName, dateToUpdate, currentStatus);
+
+                        status.then((value) => this.closeAndUpdate(context));
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }
 
 void showThisToast(String s) {

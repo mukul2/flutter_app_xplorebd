@@ -104,7 +104,29 @@ import 'dart:async';
       throw Exception('Failed to load album');
     }
   }
+Future<dynamic> addDiseasesHistory(String name,String startdate,String status) async {
+  final http.Response response = await http.post(
+    _baseUrl + 'add-disease-record',
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': AUTH_KEY,
+    },
+    body: jsonEncode(<String, String>{
+      'patient_id': USER_ID,
+      'disease_name':name,
+      'first_notice_date':startdate,
+      'status':status
+    }),
 
+  );
+  // showThisToast(response.statusCode.toString());
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+    // return LoginResponse.fromJson(json.decode(response.body));
+  } else {
+    throw Exception((response.statusCode).toString());
+  }
+}
 
 void showThisToast(String s) {
   Fluttertoast.showToast(
