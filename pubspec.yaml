@@ -59,6 +59,21 @@ flutter:
   uses-material-design: true
   assets:
     - assets/doctor.png
+    - assets/online_doc.jpg
+    - assets/doctor_chamber.png
+    - assets/doctor_chamber_.png
+    - assets/subscriptions.png
+    - assets/subscription.png
+    - assets/banner1.png
+    - assets/banner2.png
+    - assets/banner3.png
+    - assets/banner4.png
+    - assets/banner5.png
+    - assets/chat_doctor.jpg
+    - assets/ambulance.png
+    - assets/bloodbank.jpg
+    - assets/live_chat.png
+    - assets/transfusion.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

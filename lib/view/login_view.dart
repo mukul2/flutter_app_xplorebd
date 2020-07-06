@@ -16,9 +16,6 @@ class LoginUI extends StatelessWidget {
     return MaterialApp(
       title: appTitle,
       home: Scaffold(
-        appBar: AppBar(
-          title: Text(appTitle),
-        ),
         body: MyCustomForm(),
       ),
     );
@@ -45,7 +42,10 @@ class MyCustomFormState extends State<MyCustomForm> {
   String email, password;
   String myMessage = "Login";
 
-  Widget StandbyWid = Text("Login");
+  Widget StandbyWid = Text(
+    "Login",
+    style: TextStyle(color: Colors.white),
+  );
   LoginResponse _loginResponse;
 
   @override
@@ -54,73 +54,105 @@ class MyCustomFormState extends State<MyCustomForm> {
     return Form(
       key: _formKey,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          TextFormField(
-            initialValue: "p@gmail.com",
-            validator: (value) {
-              email = value;
-              if (value.isEmpty) {
-                return 'Please enter Email';
-              }
-              return null;
-            },
-          ),
-          TextFormField(
-            initialValue: "123456",
-            validator: (value) {
-              password = value;
-              if (value.isEmpty) {
-                return 'Please enter Password';
-              }
-              return null;
-            },
+          Text(
+            "Telemedicine",
+            style: TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 30,
+                fontWeight: FontWeight.bold),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: RaisedButton(
-              onPressed: () async {
-                // Validate returns true if the form is valid, or false
-                // otherwise.
-                if (_formKey.currentState.validate()) {
-                  // If the form is valid, display a Snackbar.
-                  setState(() {
-                    StandbyWid = Text("Please wait");
-                  });
-
-                  LoginResponse loginResponse =
-                      await performLogin(email, password);
-                  showThisToast(loginResponse.message);
-                  setState(() {
-                    StandbyWid = Text(loginResponse.message);
-                  });
-                  if (loginResponse.status) {
-                    AUTH_KEY ="Bearer "+ loginResponse.accessToken;
-                    USER_ID =loginResponse.userInfo.id.toString();
-                    if (loginResponse.userInfo.userType.contains("d")) {
-                      showThisToast("doctor");
-
-                      //doctor
-                    } else if (loginResponse.userInfo.userType.contains("p")) {
-                      //patient
-                      showThisToast("patient");
-
-                      mainP();
-//                      Navigator.push(
-//                          context, MaterialPageRoute(builder: (context) => PatientAPP()));
-                    }else {
-                      //unknwon user
-                      showThisToast("Unknown user");
-
-                    }
-                  } else {
-                    showThisToast(loginResponse.message);
-                  }
+            padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: TextFormField(
+              initialValue: "p@gmail.com",
+              validator: (value) {
+                email = value;
+                if (value.isEmpty) {
+                  return 'Please enter Email';
                 }
+                return null;
               },
-              child: StandbyWid,
             ),
           ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: TextFormField(
+              initialValue: "123456",
+              validator: (value) {
+                password = value;
+                if (value.isEmpty) {
+                  return 'Please enter Password';
+                }
+                return null;
+              },
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+            child: SizedBox(
+                height: 50,
+                width: double.infinity, // match_parent
+                child: RaisedButton(
+                  color: Colors.blueAccent,
+                  onPressed: () async {
+                    // Validate returns true if the form is valid, or false
+                    // otherwise.
+                    if (_formKey.currentState.validate()) {
+                      // If the form is valid, display a Snackbar.
+                      setState(() {
+                        StandbyWid = Text("Please wait");
+                      });
+
+                      LoginResponse loginResponse =
+                          await performLogin(email, password);
+                      showThisToast(loginResponse.message);
+                      setState(() {
+                        StandbyWid = Text(loginResponse.message);
+                      });
+                      if (loginResponse.status) {
+                        AUTH_KEY = "Bearer " + loginResponse.accessToken;
+                        USER_ID = loginResponse.userInfo.id.toString();
+                        if (loginResponse.userInfo.userType.contains("d")) {
+                          showThisToast("doctor");
+
+                          //doctor
+                        } else if (loginResponse.userInfo.userType
+                            .contains("p")) {
+                          //patient
+                          showThisToast("patient");
+
+                          mainP();
+//                      Navigator.push(
+//                          context, MaterialPageRoute(builder: (context) => PatientAPP()));
+                        } else {
+                          //unknwon user
+                          showThisToast("Unknown user");
+                        }
+                      } else {
+                        showThisToast(loginResponse.message);
+                      }
+                    }
+                  },
+                  child: StandbyWid,
+                )),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+            child: SizedBox(
+                height: 50,
+                width: double.infinity, // match_parent
+                child: RaisedButton(
+                  color: Colors.deepPurple,
+
+                  child:  Text(
+                    "Sign Up",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )),
+          )
         ],
       ),
     );
