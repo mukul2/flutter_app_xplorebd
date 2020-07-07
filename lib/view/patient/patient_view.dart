@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io' show File, Platform;
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
@@ -31,6 +32,7 @@ var header = <String, String>{
   'Content-Type': 'application/json; charset=UTF-8',
   'Authorization': AUTH_KEY,
 };
+GlobalKey _bottomNavigationKey = GlobalKey();
 
 void mainP() {
   runApp(PatientAPP());
@@ -72,6 +74,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int bottomSelectedIndex = 0;
+  int _page = 0;
+  List _titles = ["Home","Notifications","Profile","Appointments","Blog"];
+  GlobalKey _bottomNavigationKey = GlobalKey();
 
   List<BottomNavigationBarItem> buildBottomNavBarItems() {
     return [
@@ -152,8 +157,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void pageChanged(int index) {
+    CurvedNavigationBarState navBarState = _bottomNavigationKey.currentState;
+    navBarState.setPage(index);
     setState(() {
       bottomSelectedIndex = index;
+      _page = index;
     });
   }
 
@@ -180,18 +188,27 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget AppWidget() {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Telemedicine"),
+        title: Text(_titles[bottomSelectedIndex]),
         backgroundColor: Color(0xFF34448c),
         elevation: 0.0,
       ),
       drawer: myDrawer(),
       body: buildPageView(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: bottomSelectedIndex,
+      bottomNavigationBar: CurvedNavigationBar(
+        color:  Color(0xFF34448c),
+        backgroundColor: Colors.white,
+        key: _bottomNavigationKey,
+        items: <Widget>[
+          Icon(Icons.home, size: 30,color: Colors.white,),
+          Icon(Icons.notifications, size: 30,color: Colors.white,),
+          Icon(Icons.verified_user, size: 30,color: Colors.white,),
+          Icon(Icons.calendar_today, size: 30,color: Colors.white,),
+          Icon(Icons.library_books, size: 30,color: Colors.white,),
+        ],
         onTap: (index) {
           bottomTapped(index);
+          //Handle button tap
         },
-        items: buildBottomNavBarItems(),
       ),
     );
   }
@@ -216,9 +233,9 @@ class _HomeState extends State<Home> {
                 top: 0,
                 left: 0,
                 right: 0,
-                bottom: 80,
+                bottom: 50,
                 child: Container(
-                  color:  Color(0xFF34448c),
+                  color: Color(0xFF34448c),
                 ),
               ),
               Positioned(
@@ -303,7 +320,6 @@ class _HomeState extends State<Home> {
                                   height: 100,
                                 )),
                           ),
-
                         ],
                       ),
                     ),
@@ -316,7 +332,7 @@ class _HomeState extends State<Home> {
         GridView.count(
           shrinkWrap: true,
           primary: false,
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(5),
           crossAxisSpacing: 1,
           mainAxisSpacing: 1,
           crossAxisCount: 3,
@@ -329,32 +345,31 @@ class _HomeState extends State<Home> {
                         builder: (context) => DeptListOnlineDocWidget(context),
                       ));
                 },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                    ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          height: 64,
-                          width: 64,
-
-                          child: Image.asset(
-                            "assets/doctor.png",
-
-                          ),
+                child:  Card(
+                  margin: EdgeInsets.all(0.5),
+                  color: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        height: 48,
+                        width: 48,
+                        child: Image.asset(
+                          "assets/doctor.png",
                         ),
-                        Text(
-                          "Online Doctor",
-                          style: TextStyle(color: Colors.blueAccent),
-                        )
-                      ],
-                    ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                          child : Text(
+                            "Online Doctor",
+                            style: TextStyle(color: Color(0xFF34448c)),
+                          )
+                      )
+                    ],
                   ),
                 )),
             InkWell(
@@ -367,6 +382,7 @@ class _HomeState extends State<Home> {
                 child: Container(
                   height: 110,
                   child: Card(
+                    margin: EdgeInsets.all(0.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0.0),
                     ),
@@ -374,18 +390,20 @@ class _HomeState extends State<Home> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
-
                       children: <Widget>[
                         Container(
                           child: Image.asset(
                             "assets/doctor_chamber.png",
-                            width: 64,
-                              height: 64,
+                            height: 48,
+                            width: 48,
                           ),
                         ),
-                        Text(
-                          "Chamber Doctor",
-                          style: TextStyle(color: Colors.blueAccent),
+                        Padding(
+                            padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                            child : Text(
+                              "Chamber Doctor",
+                              style: TextStyle(color: Color(0xFF34448c)),
+                            )
                         )
                       ],
                     ),
@@ -398,31 +416,32 @@ class _HomeState extends State<Home> {
                       MaterialPageRoute(
                           builder: (context) => SubscriptionViewPatient()));
                 },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                    ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          width: 64,
-                          height: 64,
-                          child: Image.asset(
-                            "assets/subscription.png",
-                            fit: BoxFit.cover,
-                          ),
+                child: Card(
+                  margin: EdgeInsets.all(0.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0.0),
+                  ),
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        height: 48,
+                        width: 48,
+                        child: Image.asset(
+                          "assets/subscription.png",
+                          fit: BoxFit.cover,
                         ),
-                        Text(
-                          "Subscriptions",
-                          style: TextStyle(color: Colors.blueAccent),
-                        )
-                      ],
-                    ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                          child : Text(
+                            "Subscriptions",
+                            style: TextStyle(color: Color(0xFF34448c)),
+                          )
+                      )
+                    ],
                   ),
                 )),
             InkWell(
@@ -432,31 +451,31 @@ class _HomeState extends State<Home> {
                       MaterialPageRoute(
                           builder: (context) => ChatListActivity()));
                 },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                    ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          width: 64,
-                          height: 64,
-                          child: Image.asset(
-                            "assets/live_chat.png",
-
-                          ),
+                child: Card(
+                  margin: EdgeInsets.all(0.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0.0),
+                  ),
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        height: 48,
+                        width: 48,
+                        child: Image.asset(
+                          "assets/live_chat.png",
                         ),
-                        Text(
-                          "Chat",
-                          style: TextStyle(color: Colors.blueAccent),
-                        )
-                      ],
-                    ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                          child : Text(
+                            "Chat",
+                            style: TextStyle(color: Color(0xFF34448c)),
+                          )
+                      )
+                    ],
                   ),
                 )),
             InkWell(
@@ -466,9 +485,10 @@ class _HomeState extends State<Home> {
                       MaterialPageRoute(
                           builder: (context) => SubscriptionViewPatient()));
                 },
-                child:  Container(
+                child: Container(
                   height: 110,
                   child: Card(
+                    margin: EdgeInsets.all(0.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0.0),
                     ),
@@ -478,20 +498,19 @@ class _HomeState extends State<Home> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          width: 64,
-                          height: 64,
+                          height: 48,
+                          width: 48,
                           child: Image.asset(
                             "assets/ambulance.png",
                             fit: BoxFit.cover,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
-                          child: Text(
-                            "Ambulance",
-                            style: TextStyle(color: Colors.blueAccent),
-                          ),
-                          color: Colors.white,
+                        Padding(
+                            padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                            child : Text(
+                              "Ambulance",
+                              style: TextStyle(color: Color(0xFF34448c)),
+                            )
                         )
                       ],
                     ),
@@ -504,9 +523,11 @@ class _HomeState extends State<Home> {
                       MaterialPageRoute(
                           builder: (context) => ChatListActivity()));
                 },
-                child:  Container(
+                child: Container(
                   height: 110,
                   child: Card(
+                    margin: EdgeInsets.all(0.5),
+
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0.0),
                     ),
@@ -516,20 +537,19 @@ class _HomeState extends State<Home> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          width: 64,
-                          height: 64,
+                          height: 48,
+                          width: 48,
                           child: Image.asset(
                             "assets/transfusion.png",
                             fit: BoxFit.cover,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
-                          child: Text(
-                            "Blood Bank",
-                            style: TextStyle(color: Colors.blueAccent),
-                          ),
-                          color: Colors.white,
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                            child : Text(
+                              "Blood Bank",
+                              style: TextStyle(color: Color(0xFF34448c)),
+                            )
                         )
                       ],
                     ),
@@ -628,8 +648,10 @@ class _ProfileState extends State<Profile> {
           Divider(),
           ListTile(
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => PrescriptionsWidget()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PrescriptionsWidget()));
             },
             trailing: Icon(Icons.keyboard_arrow_right),
             title: Text("Prescriptions"),
@@ -638,6 +660,13 @@ class _ProfileState extends State<Profile> {
           ),
           Divider(),
           ListTile(
+            //
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PrescriptionsReviewWidget()));
+            },
             trailing: Icon(Icons.keyboard_arrow_right),
             title: Text("Prescription Review"),
             subtitle: Text("View your prescription request and responses"),
@@ -1742,7 +1771,6 @@ class _DiseasesWidgetState extends State<DiseasesWidget> {
   }
 }
 
-
 class PrescriptionsWidget extends StatefulWidget {
   @override
   _PrescriptionsWidgetState createState() => _PrescriptionsWidgetState();
@@ -1758,7 +1786,7 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': AUTH_KEY,
       },
-      body: jsonEncode(<String, String>{'id': USER_ID,'user_type': 'patient'}),
+      body: jsonEncode(<String, String>{'id': USER_ID, 'user_type': 'patient'}),
     );
     this.setState(() {
       prescriptionList = json.decode(response.body);
@@ -1785,47 +1813,52 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
       ),
       body: (prescriptionList != null && prescriptionList.length > 0)
           ? new ListView.builder(
-        itemCount: prescriptionList == null ? 0 : prescriptionList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return new InkWell(
-              onTap: () {},
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(00.0),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(05),
-                  child: ListTile(
-                    trailing: Icon(Icons.keyboard_arrow_right),
-                    leading: Icon(Icons.accessible_forward),
-                    title: new Text(
-                      prescriptionList[index]["dr_info"]["name"],
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: new Text(
-                      prescriptionList[index]["created_at"],
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ));
-        },
-      )
+              itemCount: prescriptionList == null ? 0 : prescriptionList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PrescriptionsodyWidget(prescriptionList[index])));
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(00.0),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(05),
+                        child: ListTile(
+                          trailing: Icon(Icons.keyboard_arrow_right),
+                          leading: Icon(Icons.accessible_forward),
+                          title: new Text(
+                            (prescriptionList[index]["dr_info"]==null?"No Doctor Name":prescriptionList[index]["dr_info"]["name"]),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: new Text(
+                            prescriptionList[index]["created_at"],
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ));
+              },
+            )
           : Container(
-          height: 200,
-          child: Center(
-            child: Text("No Diseases History"),
-          )),
+              height: 200,
+              child: Center(
+                child: Text("No Prescription History"),
+              )),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           final _formKey = GlobalKey<FormState>();
-          String diseaesName, currentStatus, firstNoticeDate;
+          String diseaesName;
           return showDialog<void>(
             context: context,
             barrierDismissible: false, // user must tap button!
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Diseases Information'),
+                title: Text('Add Prescription'),
                 content: SingleChildScrollView(
                   child: ListBody(
                     children: <Widget>[
@@ -1834,35 +1867,21 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text("Diseases name"),
+
+                            Text("Diseases Name"),
                             Padding(
                               padding: EdgeInsets.fromLTRB(00, 00, 00, 10),
                               child: TextFormField(
                                 validator: (value) {
                                   diseaesName = value;
                                   if (value.isEmpty) {
-                                    return 'Please enter Diseases Name';
+                                    return 'Please enter diseases name';
                                   }
                                   return null;
                                 },
                               ),
-                            ),
-                            Text("First notice date"),
+                            )
 
-
-                            Text("Current status"),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(00, 00, 00, 10),
-                              child: TextFormField(
-                                validator: (value) {
-                                  currentStatus = value;
-                                  if (value.isEmpty) {
-                                    return 'Please enter current status';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
                           ],
                         ),
                       )
@@ -1877,16 +1896,55 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
                     },
                   ),
                   FlatButton(
-                    child: Text('Update'),
-                    onPressed: () {
+                    child: Text('Choose Photo From Gallary'),
+                    onPressed: () async {
                       if (_formKey.currentState.validate()) {
-                        var status = addDiseasesHistory(
-                            diseaesName, "", currentStatus);
 
-                        status.then((value) => this.closeAndUpdate(context));
+                        File image =
+                        await ImagePicker.pickImage(source: ImageSource.gallery);
+                        var stream =
+                        new http.ByteStream(DelegatingStream.typed(image.openRead()));
+                        var length = await image.length();
+
+                        var uri = Uri.parse(_baseUrl + "add_prescription_photo_only");
+
+                        var request = new http.MultipartRequest("POST", uri);
+                        var multipartFile = new http.MultipartFile(
+                            'photo', stream, length,
+                            filename: basename(image.path));
+                        //contentType: new MediaType('image', 'png'));
+
+                        request.files.add(multipartFile);
+                        request.fields.addAll(<String, String>{'patient_id': USER_ID});
+                        request.fields.addAll(<String, String>{'diseases_name': diseaesName});
+                        request.headers.addAll(<String, String>{
+                          'Content-Type': 'application/json; charset=UTF-8',
+                          'Authorization': AUTH_KEY,
+                        });
+                        showThisToast(request.toString());
+
+                        var response = await request.send();
+
+                        print(response.statusCode);
+                        showThisToast(response.statusCode.toString());
+                        this.closeAndUpdate(context);
+
+
+
+
+
+
                       }
-                    },
-                  ),
+
+
+
+
+
+
+              }
+                  )
+
+
                 ],
               );
             },
@@ -1896,6 +1954,141 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
     );
   }
 }
+
+class PrescriptionsodyWidget extends StatefulWidget {
+  dynamic prescriptionBody;
+  PrescriptionsodyWidget(this.prescriptionBody);
+
+
+  @override
+  _PrescriptionsBodyWidgetState createState() => _PrescriptionsBodyWidgetState();
+}
+
+class _PrescriptionsBodyWidgetState extends State<PrescriptionsodyWidget> {
+  List prescriptionList = [];
+
+  Future<String> getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'get-prescription-info',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(<String, String>{'id': USER_ID, 'user_type': 'patient'}),
+    );
+    this.setState(() {
+      prescriptionList = json.decode(response.body);
+    });
+    return "Success!";
+  }
+
+  void closeAndUpdate(BuildContext context) {
+    Navigator.of(context).pop();
+    this.getData();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    this.getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Prescription Body"),
+      ),
+      body: (widget.prescriptionBody["attachment"]!=null?Image.network(_baseUrl_image+widget.prescriptionBody["attachment"][0]["file"]):Text("Digital Prescription")),
+
+    );
+  }
+}
+
+class PrescriptionsReviewWidget extends StatefulWidget {
+  @override
+  _PrescriptionsReviewWidgetState createState() => _PrescriptionsReviewWidgetState();
+}
+
+class _PrescriptionsReviewWidgetState extends State<PrescriptionsReviewWidget> {
+  List prescriptionReviewList = [];
+
+  Future<String> getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'get-my-recheck-requests',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(<String, String>{'id': USER_ID, 'user_type': 'patient'}),
+    );
+    this.setState(() {
+      prescriptionReviewList = json.decode(response.body);
+    });
+    return "Success!";
+  }
+
+  void closeAndUpdate(BuildContext context) {
+    Navigator.of(context).pop();
+    this.getData();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    this.getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Prescription Review List"),
+      ),
+      body: (prescriptionReviewList != null && prescriptionReviewList.length > 0)
+          ? new ListView.builder(
+        itemCount: prescriptionReviewList == null ? 0 : prescriptionReviewList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return new InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PrescriptionsodyWidget(prescriptionReviewList[index])));
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(00.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(05),
+                  child: ListTile(
+                    trailing: Icon(Icons.keyboard_arrow_right),
+                    leading: Icon(Icons.accessible_forward),
+                    title: new Text(
+                      (prescriptionReviewList[index]["dr_info"]==null?"No Doctor Name":prescriptionReviewList[index]["dr_info"]["name"]),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: new Text(
+                      prescriptionReviewList[index]["is_reviewed"]==1?"Review Done":"Review Pending",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ));
+        },
+      )
+          : Container(
+          height: 200,
+          child: Center(
+            child: Text("No Prescription Review History"),
+          )),
+
+    );
+  }
+}
+
+
 void showThisToast(String s) {
   Fluttertoast.showToast(
       msg: s,

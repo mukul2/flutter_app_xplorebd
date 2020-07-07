@@ -60,14 +60,14 @@ class MyCustomFormState extends State<MyCustomForm> {
           Text(
             "Telemedicine",
             style: TextStyle(
-                color: Colors.blueAccent,
+                color: Color(0xFF34448c),
                 fontSize: 30,
                 fontWeight: FontWeight.bold),
           ),
           Padding(
             padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
             child: TextFormField(
-              initialValue: "p@gmail.com",
+              initialValue: "m@gmail.com",
               validator: (value) {
                 email = value;
                 if (value.isEmpty) {
@@ -96,7 +96,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                 height: 50,
                 width: double.infinity, // match_parent
                 child: RaisedButton(
-                  color: Colors.blueAccent,
+                  color: Color(0xFF34448c),
                   onPressed: () async {
                     // Validate returns true if the form is valid, or false
                     // otherwise.
