@@ -48,12 +48,13 @@ var header = <String, String>{
   'Authorization': AUTH_KEY,
 };
 GlobalKey _bottomNavigationKey = GlobalKey();
-Color tColor = Color(0xFF34448c) ;
-void mainP() {
-  runApp(PatientAPP());
+Color tColor = Color(0xFF34448c);
+
+void mainD() {
+  runApp(DoctorAPP());
 }
 
-class PatientAPP extends StatelessWidget {
+class DoctorAPP extends StatelessWidget {
   // This widget is the root of your application.
 
   @override
@@ -69,9 +70,7 @@ class PatientAPP extends StatelessWidget {
       onWillPop: _onWillpop,
       child: MaterialApp(
         title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: customColor
-        ),
+        theme: ThemeData(primarySwatch: customColor),
         home: MyHomePage(title: 'Flutter Demo Home Page'),
       ),
     );
@@ -90,7 +89,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int bottomSelectedIndex = 0;
   int _page = 0;
-  List _titles = ["Home","Notifications","Profile","Appointments","Blog"];
+  List _titles = ["Home", "Notifications", "Profile", "Appointments", "Blog"];
   GlobalKey _bottomNavigationKey = GlobalKey();
 
   List<BottomNavigationBarItem> buildBottomNavBarItems() {
@@ -203,7 +202,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget AppWidget() {
     return Scaffold(
       appBar: AppBar(
-
         title: Text(_titles[bottomSelectedIndex]),
         backgroundColor: Color(0xFF34448c),
         elevation: 0.0,
@@ -212,15 +210,35 @@ class _MyHomePageState extends State<MyHomePage> {
       body: buildPageView(),
       bottomNavigationBar: CurvedNavigationBar(
         height: 56,
-        color:  Color(0xFF34448c),
+        color: Color(0xFF34448c),
         backgroundColor: Colors.white,
         key: _bottomNavigationKey,
         items: <Widget>[
-          Icon(Icons.home, size: 20,color: Colors.white,),
-          Icon(Icons.notifications, size: 20,color: Colors.white,),
-          Icon(Icons.verified_user, size: 20,color: Colors.white,),
-          Icon(Icons.calendar_today, size: 20,color: Colors.white,),
-          Icon(Icons.library_books, size: 20,color: Colors.white,),
+          Icon(
+            Icons.home,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.notifications,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.verified_user,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.calendar_today,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.library_books,
+            size: 20,
+            color: Colors.white,
+          ),
         ],
         onTap: (index) {
           bottomTapped(index);
@@ -237,483 +255,325 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  // After 1 second, it takes you to the bottom of the ListView
-  // After 1 second, it takes you to the bottom of the ListView
-  // After 1 second, it takes you to the bottom of the ListView
-  final _controller = ScrollController();
-
   @override
   Widget build(BuildContext context) {
-    // After 1 second, it takes you to the bottom of the ListView
-    int total = 3 ;
-    int current = 0 ;
-
-    Timer.periodic(new Duration(seconds: 3), (timer) {
-      debugPrint(timer.tick.toString());
-      double total_width = _controller.position.maxScrollExtent+320;
-      double one_width = total_width/4;
-      _controller.animateTo(
-        one_width*current,
-        curve: Curves.easeOut,
-        duration: const Duration(milliseconds: 3000),
-      );
-      current ++;
-      if(current>total){
-        current = 0;
-      }
-    });
-    return SingleChildScrollView(
-        child: Column(
+    return GridView.count(
+      shrinkWrap: true,
+      primary: false,
+      padding: const EdgeInsets.all(5),
+      crossAxisSpacing: 1,
+      mainAxisSpacing: 1,
+      crossAxisCount: 3,
       children: <Widget>[
-        Container(
-          height: 130,
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 50,
-                child: Container(
-                  color: Color(0xFF34448c),
-                ),
+        InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DeptListOnlineDocWidget(context),
+                  ));
+            },
+            child: Card(
+              margin: EdgeInsets.all(0.5),
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0.0),
               ),
-              Positioned(
-                top: 00,
-                left: 0,
-                right: 0,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    height: 48,
+                    width: 48,
+                    child: Image.asset(
+                      "assets/doctor.png",
+                    ),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                      child: Text(
+                        "Appointments",
+                        style: TextStyle(color: Color(0xFF34448c)),
+                      ))
+                ],
+              ),
+            )), //chambeer app
+        InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DeptChamberDocWidget(context)));
+            },
+            child: Container(
+              height: 110,
+              child: Card(
+                margin: EdgeInsets.all(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+                color: Colors.white,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Container(
-                      height: 130,
-                      child: ListView(
-                        controller: _controller,
-                        shrinkWrap: true,
-
-                        // This next line does the trick.
-                        scrollDirection: Axis.horizontal,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Card(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                ),
-                                child: Container(
-                                  child: Center(
-                                    child: Image.asset(
-                                      "assets/banner5.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  height: 100,
-                                )),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Card(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                ),
-                                child: Container(
-                                  child: Center(
-                                    child: Image.asset(
-                                      "assets/banner2.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  height: 100,
-                                )),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Card(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                ),
-                                child: Container(
-                                  child: Center(
-                                    child: Image.asset(
-                                      "assets/banner3.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  height: 100,
-                                )),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Card(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                ),
-                                child: Container(
-                                  child: Center(
-                                    child: Image.asset(
-                                      "assets/banner4.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  height: 100,
-                                )),
-                          ),
-                        ],
+                      child: Image.asset(
+                        "assets/doctor_chamber.png",
+                        height: 48,
+                        width: 48,
                       ),
                     ),
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                        child: Text(
+                          "Pending",
+                          style: TextStyle(color: Color(0xFF34448c)),
+                        ))
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-        GridView.count(
-          shrinkWrap: true,
-          primary: false,
-          padding: const EdgeInsets.all(5),
-          crossAxisSpacing: 1,
-          mainAxisSpacing: 1,
-          crossAxisCount: 3,
-          children: <Widget>[
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DeptListOnlineDocWidget(context),
-                      ));
-                },
-                child:  Card(
-                  margin: EdgeInsets.all(0.5),
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0.0),
+            )), //pending
+        InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SubscriptionViewPatient()));
+            },
+            child: Card(
+              margin: EdgeInsets.all(0.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0.0),
+              ),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    height: 48,
+                    width: 48,
+                    child: Image.asset(
+                      "assets/subscription.png",
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        height: 48,
-                        width: 48,
-                        child: Image.asset(
-                          "assets/doctor.png",
-                        ),
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                      child: Text(
+                        "Subscriptions",
+                        style: TextStyle(color: Color(0xFF34448c)),
+                      ))
+                ],
+              ),
+            )), //subscriptions
+        InkWell(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ChatListActivity()));
+            },
+            child: Card(
+              margin: EdgeInsets.all(0.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0.0),
+              ),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    height: 48,
+                    width: 48,
+                    child: Image.asset(
+                      "assets/live_chat.png",
+                    ),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                      child: Text(
+                        "Chats",
+                        style: TextStyle(color: Color(0xFF34448c)),
+                      ))
+                ],
+              ),
+            )), //chat
+        InkWell(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AmbulanceWidget()));
+            },
+            child: Container(
+              height: 110,
+              child: Card(
+                margin: EdgeInsets.all(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 48,
+                      width: 48,
+                      child: Image.asset(
+                        "assets/ambulance.png",
+                        fit: BoxFit.cover,
                       ),
-                      Padding(
-                          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                          child : Text(
-                            "Online Doctor",
-                            style: TextStyle(color: Color(0xFF34448c)),
-                          )
-                      )
-                    ],
-                  ),
-                )),
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => DeptChamberDocWidget(context)));
-                },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    margin: EdgeInsets.all(0.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
                     ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          child: Image.asset(
-                            "assets/doctor_chamber.png",
-                            height: 48,
-                            width: 48,
-                          ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                            child : Text(
-                              "Chamber Doctor",
-                              style: TextStyle(color: Color(0xFF34448c)),
-                            )
-                        )
-                      ],
-                    ),
-                  ),
-                )),
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SubscriptionViewPatient()));
-                },
-                child: Card(
-                  margin: EdgeInsets.all(0.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0.0),
-                  ),
-                  color: Colors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        height: 48,
-                        width: 48,
-                        child: Image.asset(
-                          "assets/subscription.png",
-                          fit: BoxFit.cover,
-                        ),
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                        child: Text(
+                          "Ambulance",
+                          style: TextStyle(color: Color(0xFF34448c)),
+                        ))
+                  ],
+                ),
+              ),
+            )), //ambulance
+        InkWell(
+            onTap: () {
+              // _controller.jumpTo(_controller.position.maxScrollExtent);
+            },
+            child: Container(
+              height: 110,
+              child: Card(
+                margin: EdgeInsets.all(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 48,
+                      width: 48,
+                      child: Image.asset(
+                        "assets/transfusion.png",
+                        fit: BoxFit.cover,
                       ),
-                      Padding(
-                          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                          child : Text(
-                            "Subscriptions",
-                            style: TextStyle(color: Color(0xFF34448c)),
-                          )
-                      )
-                    ],
-                  ),
-                )),
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ChatListActivity()));
-                },
-                child: Card(
-                  margin: EdgeInsets.all(0.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0.0),
-                  ),
-                  color: Colors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        height: 48,
-                        width: 48,
-                        child: Image.asset(
-                          "assets/live_chat.png",
-                        ),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                        child: Text(
+                          "Prescription Req",
+                          style: TextStyle(color: Color(0xFF34448c)),
+                        ))
+                  ],
+                ),
+              ),
+            )), //pres request
+        InkWell(
+            onTap: () {
+              // _controller.jumpTo(_controller.position.maxScrollExtent);
+            },
+            child: Container(
+              height: 110,
+              child: Card(
+                margin: EdgeInsets.all(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 48,
+                      width: 48,
+                      child: Image.asset(
+                        "assets/pharmacy.png",
+                        fit: BoxFit.cover,
                       ),
-                      Padding(
-                          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                          child : Text(
-                            "Chat",
-                            style: TextStyle(color: Color(0xFF34448c)),
-                          )
-                      )
-                    ],
-                  ),
-                )),
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AmbulanceWidget()));
-                },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    margin: EdgeInsets.all(0.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
                     ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          height: 48,
-                          width: 48,
-                          child: Image.asset(
-                            "assets/ambulance.png",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                            child : Text(
-                              "Ambulance",
-                              style: TextStyle(color: Color(0xFF34448c)),
-                            )
-                        )
-                      ],
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                        child: Text(
+                          "Prescription Review",
+                          style: TextStyle(color: Color(0xFF34448c)),
+                        ))
+                  ],
+                ),
+              ),
+            )), //Prescription Review
+
+        InkWell(
+            onTap: () {
+              // _controller.jumpTo(_controller.position.maxScrollExtent);
+            },
+            child: Container(
+              height: 110,
+              child: Card(
+                margin: EdgeInsets.all(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 48,
+                      width: 48,
+                      child: Image.asset(
+                        "assets/examination.png",
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                )),
-            InkWell(
-                onTap: () {
-
-                 // _controller.jumpTo(_controller.position.maxScrollExtent);
-
-                },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    margin: EdgeInsets.all(0.5),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                        child: Text(
+                          "Video Call",
+                          style: TextStyle(color: Color(0xFF34448c)),
+                        ))
+                  ],
+                ),
+              ),
+            )),
+        InkWell(
+            onTap: () {
+              // _controller.jumpTo(_controller.position.maxScrollExtent);
+            },
+            child: Container(
+              height: 110,
+              child: Card(
+                margin: EdgeInsets.all(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 48,
+                      width: 48,
+                      child: Image.asset(
+                        "assets/help.png",
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          height: 48,
-                          width: 48,
-                          child: Image.asset(
-                            "assets/transfusion.png",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                            child : Text(
-                              "Blood Bank",
-                              style: TextStyle(color: Color(0xFF34448c)),
-                            )
-                        )
-                      ],
-                    ),
-                  ),
-                )),
-            InkWell(
-                onTap: () {
-
-                  // _controller.jumpTo(_controller.position.maxScrollExtent);
-
-                },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    margin: EdgeInsets.all(0.5),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                    ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          height: 48,
-                          width: 48,
-                          child: Image.asset(
-                            "assets/pharmacy.png",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                            child : Text(
-                              "Pharmacey",
-                              style: TextStyle(color: Color(0xFF34448c)),
-                            )
-                        )
-                      ],
-                    ),
-                  ),
-                )),
-          
-            InkWell(
-                onTap: () {
-
-                  // _controller.jumpTo(_controller.position.maxScrollExtent);
-
-                },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    margin: EdgeInsets.all(0.5),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                    ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          height: 48,
-                          width: 48,
-                          child: Image.asset(
-                            "assets/examination.png",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                            child : Text(
-                              "Hospitals",
-                              style: TextStyle(color: Color(0xFF34448c)),
-                            )
-                        )
-                      ],
-                    ),
-                  ),
-                )),
-            InkWell(
-                onTap: () {
-
-                  // _controller.jumpTo(_controller.position.maxScrollExtent);
-
-                },
-                child: Container(
-                  height: 110,
-                  child: Card(
-                    margin: EdgeInsets.all(0.5),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                    ),
-                    color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          height: 48,
-                          width: 48,
-                          child: Image.asset(
-                            "assets/help.png",
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
-                            child : Text(
-                              "Guidline",
-                              style: TextStyle(color: Color(0xFF34448c)),
-                            )
-                        )
-                      ],
-                    ),
-                  ),
-                )),
-          ],
-        ),
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                        child: Text(
+                          "My Earnings",
+                          style: TextStyle(color: Color(0xFF34448c)),
+                        ))
+                  ],
+                ),
+              ),
+            )),
       ],
-    ));
+    );
   }
 }
 
@@ -728,13 +588,20 @@ class _ProjNotificationState extends State<ProjNotification> {
     return NoticeList();
   }
 }
-Widget AmbulanceBodyWidget(dynamic ambulanceBody){
+
+Widget AmbulanceBodyWidget(dynamic ambulanceBody) {
   return Scaffold(
-    appBar: AppBar(title: Text("Ambulance"),),
+    appBar: AppBar(
+      title: Text("Ambulance"),
+    ),
     body: ListView(
       children: <Widget>[
         Center(
-          child: Image.asset("assets/ambulance.png",width: 250,height: 250,),
+          child: Image.asset(
+            "assets/ambulance.png",
+            width: 250,
+            height: 250,
+          ),
         ),
         Padding(
           padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
@@ -742,29 +609,31 @@ Widget AmbulanceBodyWidget(dynamic ambulanceBody){
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text("Title"),
-              Text(ambulanceBody["Title"],style : TextStyle(color :tColor)),
+              Text(ambulanceBody["Title"], style: TextStyle(color: tColor)),
               Text("phone"),
-              Text(ambulanceBody["phone"],style : TextStyle(color :tColor)),
+              Text(ambulanceBody["phone"], style: TextStyle(color: tColor)),
               Text("area"),
-              Text(ambulanceBody["area"],style : TextStyle(color :tColor)),
+              Text(ambulanceBody["area"], style: TextStyle(color: tColor)),
               Text("address"),
-              Text(ambulanceBody["address"],style : TextStyle(color :tColor)),
+              Text(ambulanceBody["address"], style: TextStyle(color: tColor)),
               Text("District"),
-              Text(ambulanceBody["district_info"]["name"],style : TextStyle(color :tColor)),
-             Center(
-               child:  InkWell(
-                 onTap: (){
-                   launch("tel://"+ambulanceBody["phone"]);
-                 },
-                 child: Card(
-                   color : Color(0xFF34448c),
-                   child: Padding(
-                     padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                     child: Text("Call Ambulance",style : TextStyle(color :Colors.white)),
-                   ),
-                 ),
-               ),
-             )
+              Text(ambulanceBody["district_info"]["name"],
+                  style: TextStyle(color: tColor)),
+              Center(
+                child: InkWell(
+                  onTap: () {
+                    launch("tel://" + ambulanceBody["phone"]);
+                  },
+                  child: Card(
+                    color: Color(0xFF34448c),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      child: Text("Call Ambulance",
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         )
@@ -775,7 +644,9 @@ Widget AmbulanceBodyWidget(dynamic ambulanceBody){
 
 Widget AmbulanceWidget() {
   return Scaffold(
-    appBar: AppBar(title: Text("Ambulances"),),
+      appBar: AppBar(
+        title: Text("Ambulances"),
+      ),
       body: FutureBuilder(
           future: fetchAmbulance(),
           builder: (context, projectSnap) {
@@ -790,7 +661,8 @@ Widget AmbulanceWidget() {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => AmbulanceBodyWidget( projectSnap.data[index])));
+                                    builder: (context) => AmbulanceBodyWidget(
+                                        projectSnap.data[index])));
                           },
                           child: Card(
                             shape: RoundedRectangleBorder(
@@ -816,6 +688,7 @@ Widget AmbulanceWidget() {
                   );
           }));
 }
+
 Widget NoticeList() {
   return Scaffold(
       body: FutureBuilder(
@@ -931,9 +804,8 @@ class _AppointmentState extends State<Appointment> {
     return Container(
         child: DefaultTabController(
       length: 2,
-      child:Scaffold(
+      child: Scaffold(
         appBar: new PreferredSize(
-
           preferredSize: Size.fromHeight(kToolbarHeight),
           child: new Container(
             color: Color(0xFF34448c),
@@ -1114,6 +986,7 @@ Future<dynamic> fetchNotices() async {
     throw Exception('Failed to load album');
   }
 }
+
 Future<dynamic> fetchAmbulance() async {
   final http.Response response = await http.get(
     _baseUrl + 'view-ambulance',
@@ -1121,7 +994,6 @@ Future<dynamic> fetchAmbulance() async {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': AUTH_KEY,
     },
-
   );
 
   if (response.statusCode == 200) {
@@ -1156,37 +1028,33 @@ Widget myDrawer() {
       // Important: Remove any padding from the ListView.
       padding: EdgeInsets.zero,
       children: <Widget>[
-       Container(
-         color: tColor,
-         child: Center(
-           child: Column(
-             children: <Widget>[
-
-               Padding(
-                   padding: EdgeInsets.fromLTRB(0, 50, 0, 5),
-                   child :   CircleAvatar(
-                     radius: 50,
-
-                     backgroundImage: NetworkImage(_baseUrl_image + USER_PHOTO),
-                   )
-               ),
-               Padding(
-                   padding: EdgeInsets.fromLTRB(0, 10, 0, 25),
-                   child :   new Center(
-                     child: Text(
-                       USER_NAME,
-                       style: TextStyle(
-                           color: Colors.white,
-                           fontWeight: FontWeight.bold,
-                           fontSize: 18),
-                     ),
-                   )
-               ),
-
-             ],
-           ),
-         ),
-       ),
+        Container(
+          color: tColor,
+          child: Center(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                    padding: EdgeInsets.fromLTRB(0, 50, 0, 5),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          NetworkImage(_baseUrl_image + USER_PHOTO),
+                    )),
+                Padding(
+                    padding: EdgeInsets.fromLTRB(0, 10, 0, 25),
+                    child: new Center(
+                      child: Text(
+                        USER_NAME,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18),
+                      ),
+                    )),
+              ],
+            ),
+          ),
+        ),
         ListTile(
           leading: Icon(Icons.description),
           title: Text('Online Doctor'),
@@ -1416,12 +1284,12 @@ class _BasicProfileState extends State<BasicProfile> {
                 'Content-Type': 'application/json; charset=UTF-8',
                 'Authorization': AUTH_KEY,
               });
-             // showThisToast(request.toString());
+              // showThisToast(request.toString());
 
               var response = await request.send();
 
               print(response.statusCode);
-             // showThisToast(response.statusCode.toString());
+              // showThisToast(response.statusCode.toString());
 
               response.stream.transform(utf8.decoder).listen((value) {
                 //print(value);
@@ -1429,7 +1297,7 @@ class _BasicProfileState extends State<BasicProfile> {
 
                 var data = jsonDecode(value);
                 //showThisToast(data.t);
-               // showThisToast(data.toString());
+                // showThisToast(data.toString());
                 setState(() {
                   user_picture = (data["photo"]).toString();
                   USER_PHOTO = user_picture;
@@ -1647,7 +1515,7 @@ class _BlogActivityWithStateState extends State<BlogActivityWithState> {
   }
 
   Future<String> getBlogs() async {
-   // showThisToast("Hit to download blogs " + (blogCategoryList[_value]["id"]).toString());
+    // showThisToast("Hit to download blogs " + (blogCategoryList[_value]["id"]).toString());
     final http.Response response = await http.post(
       _baseUrl + 'all-blog-info',
       headers: <String, String>{
@@ -1660,7 +1528,7 @@ class _BlogActivityWithStateState extends State<BlogActivityWithState> {
     );
     this.setState(() {
       blogList = json.decode(response.body);
-     // showThisToast("blog size " + (blogList.length).toString());
+      // showThisToast("blog size " + (blogList.length).toString());
     });
     return "Success!";
   }
@@ -1678,68 +1546,81 @@ class _BlogActivityWithStateState extends State<BlogActivityWithState> {
         Container(
           height: 50,
           child: (blogCategoryList.length > 0)
-              ?  ListView.builder(
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            itemCount: blogCategoryList == null ? 0 : blogCategoryList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Container(
-                height: 50,
-                child: InkWell(
-                    onTap: () async {
-                      setState(() {
-                        _value = index ;
-                      });
-                      final http.Response response = await http.post(
-                        _baseUrl + 'all-blog-info',
-                        headers: <String, String>{
-                          'Content-Type': 'application/json; charset=UTF-8',
-                          'Authorization': AUTH_KEY,
-                        },
-                        body: jsonEncode(<String, String>{
-                          'blog_category':
-                          (blogCategoryList[_value]["id"]).toString()
-                        }),
-                      );
-                      this.setState(() {
-                        blogList = json.decode(response.body);
-                    //    showThisToast("blog size " + (blogList.length).toString());
-                      });
-                    },
-                    child: _value==index? Card(
-                      color: Color(0xFF34448c),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(0),
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(10,0, 10, 0),
-                          child: Center(
-                            child:  Text(blogCategoryList[index]["name"],style: TextStyle(color: Colors.white),),
-                          ),
-                        ),
-                      ),
-                    ):Card(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(0),
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(10,0, 10, 0),
-                          child: Center(
-                            child:  Text(blogCategoryList[index]["name"],style: TextStyle(color: Color(0xFF34448c)),),
-                          ),
-                        ),
-                      ),
-                    )),
-              );
-            },
-          ):Text("No Category"),
+              ? ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemCount:
+                      blogCategoryList == null ? 0 : blogCategoryList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Container(
+                      height: 50,
+                      child: InkWell(
+                          onTap: () async {
+                            setState(() {
+                              _value = index;
+                            });
+                            final http.Response response = await http.post(
+                              _baseUrl + 'all-blog-info',
+                              headers: <String, String>{
+                                'Content-Type':
+                                    'application/json; charset=UTF-8',
+                                'Authorization': AUTH_KEY,
+                              },
+                              body: jsonEncode(<String, String>{
+                                'blog_category':
+                                    (blogCategoryList[_value]["id"]).toString()
+                              }),
+                            );
+                            this.setState(() {
+                              blogList = json.decode(response.body);
+                              //    showThisToast("blog size " + (blogList.length).toString());
+                            });
+                          },
+                          child: _value == index
+                              ? Card(
+                                  color: Color(0xFF34448c),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(0),
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                      child: Center(
+                                        child: Text(
+                                          blogCategoryList[index]["name"],
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Card(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(0),
+                                    child: Padding(
+                                      padding:
+                                          EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                      child: Center(
+                                        child: Text(
+                                          blogCategoryList[index]["name"],
+                                          style: TextStyle(
+                                              color: Color(0xFF34448c)),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                    );
+                  },
+                )
+              : Text("No Category"),
         ),
-
         (blogList.length > 0)
             ? ListView.builder(
                 shrinkWrap: true,
@@ -1891,7 +1772,7 @@ Widget ChatListWidget(BuildContext context) {
             values.forEach((key, values) {
               lists.add(values);
             });
-           // showThisToast((snapshot.data.value).toString());
+            // showThisToast((snapshot.data.value).toString());
             return lists.length > 0
                 ? new ListView.builder(
                     shrinkWrap: true,
@@ -2211,7 +2092,8 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => PrescriptionsodyWidget(prescriptionList[index])));
+                              builder: (context) => PrescriptionsodyWidget(
+                                  prescriptionList[index])));
                     },
                     child: Card(
                       shape: RoundedRectangleBorder(
@@ -2223,7 +2105,9 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
                           trailing: Icon(Icons.keyboard_arrow_right),
                           leading: Icon(Icons.accessible_forward),
                           title: new Text(
-                            (prescriptionList[index]["dr_info"]==null?"No Doctor Name":prescriptionList[index]["dr_info"]["name"]),
+                            (prescriptionList[index]["dr_info"] == null
+                                ? "No Doctor Name"
+                                : prescriptionList[index]["dr_info"]["name"]),
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: new Text(
@@ -2258,7 +2142,6 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-
                             Text("Diseases Name"),
                             Padding(
                               padding: EdgeInsets.fromLTRB(00, 00, 00, 10),
@@ -2272,7 +2155,6 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
                                 },
                               ),
                             )
-
                           ],
                         ),
                       )
@@ -2287,55 +2169,42 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
                     },
                   ),
                   FlatButton(
-                    child: Text('Choose Photo From Gallary'),
-                    onPressed: () async {
-                      if (_formKey.currentState.validate()) {
+                      child: Text('Choose Photo From Gallary'),
+                      onPressed: () async {
+                        if (_formKey.currentState.validate()) {
+                          File image = await ImagePicker.pickImage(
+                              source: ImageSource.gallery);
+                          var stream = new http.ByteStream(
+                              DelegatingStream.typed(image.openRead()));
+                          var length = await image.length();
 
-                        File image =
-                        await ImagePicker.pickImage(source: ImageSource.gallery);
-                        var stream =
-                        new http.ByteStream(DelegatingStream.typed(image.openRead()));
-                        var length = await image.length();
+                          var uri = Uri.parse(
+                              _baseUrl + "add_prescription_photo_only");
 
-                        var uri = Uri.parse(_baseUrl + "add_prescription_photo_only");
+                          var request = new http.MultipartRequest("POST", uri);
+                          var multipartFile = new http.MultipartFile(
+                              'photo', stream, length,
+                              filename: basename(image.path));
+                          //contentType: new MediaType('image', 'png'));
 
-                        var request = new http.MultipartRequest("POST", uri);
-                        var multipartFile = new http.MultipartFile(
-                            'photo', stream, length,
-                            filename: basename(image.path));
-                        //contentType: new MediaType('image', 'png'));
+                          request.files.add(multipartFile);
+                          request.fields
+                              .addAll(<String, String>{'patient_id': USER_ID});
+                          request.fields.addAll(
+                              <String, String>{'diseases_name': diseaesName});
+                          request.headers.addAll(<String, String>{
+                            'Content-Type': 'application/json; charset=UTF-8',
+                            'Authorization': AUTH_KEY,
+                          });
+                          //     showThisToast(request.toString());
 
-                        request.files.add(multipartFile);
-                        request.fields.addAll(<String, String>{'patient_id': USER_ID});
-                        request.fields.addAll(<String, String>{'diseases_name': diseaesName});
-                        request.headers.addAll(<String, String>{
-                          'Content-Type': 'application/json; charset=UTF-8',
-                          'Authorization': AUTH_KEY,
-                        });
-                   //     showThisToast(request.toString());
+                          var response = await request.send();
 
-                        var response = await request.send();
-
-                        print(response.statusCode);
-                     //   showThisToast(response.statusCode.toString());
-                        this.closeAndUpdate(context);
-
-
-
-
-
-
-                      }
-
-
-
-
-
-
-              }
-                  )
-
-
+                          print(response.statusCode);
+                          //   showThisToast(response.statusCode.toString());
+                          this.closeAndUpdate(context);
+                        }
+                      })
                 ],
               );
             },
@@ -2348,11 +2217,12 @@ class _PrescriptionsWidgetState extends State<PrescriptionsWidget> {
 
 class PrescriptionsodyWidget extends StatefulWidget {
   dynamic prescriptionBody;
+
   PrescriptionsodyWidget(this.prescriptionBody);
 
-
   @override
-  _PrescriptionsBodyWidgetState createState() => _PrescriptionsBodyWidgetState();
+  _PrescriptionsBodyWidgetState createState() =>
+      _PrescriptionsBodyWidgetState();
 }
 
 class _PrescriptionsBodyWidgetState extends State<PrescriptionsodyWidget> {
@@ -2390,15 +2260,18 @@ class _PrescriptionsBodyWidgetState extends State<PrescriptionsodyWidget> {
       appBar: AppBar(
         title: Text("Prescription Body"),
       ),
-      body: (widget.prescriptionBody["attachment"]!=null?Image.network(_baseUrl_image+widget.prescriptionBody["attachment"][0]["file"]):Text("Digital Prescription")),
-
+      body: (widget.prescriptionBody["attachment"] != null
+          ? Image.network(
+              _baseUrl_image + widget.prescriptionBody["attachment"][0]["file"])
+          : Text("Digital Prescription")),
     );
   }
 }
 
 class PrescriptionsReviewWidget extends StatefulWidget {
   @override
-  _PrescriptionsReviewWidgetState createState() => _PrescriptionsReviewWidgetState();
+  _PrescriptionsReviewWidgetState createState() =>
+      _PrescriptionsReviewWidgetState();
 }
 
 class _PrescriptionsReviewWidgetState extends State<PrescriptionsReviewWidget> {
@@ -2436,49 +2309,56 @@ class _PrescriptionsReviewWidgetState extends State<PrescriptionsReviewWidget> {
       appBar: AppBar(
         title: Text("Prescription Review List"),
       ),
-      body: (prescriptionReviewList != null && prescriptionReviewList.length > 0)
+      body: (prescriptionReviewList != null &&
+              prescriptionReviewList.length > 0)
           ? new ListView.builder(
-        itemCount: prescriptionReviewList == null ? 0 : prescriptionReviewList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return new InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => PrescriptionsodyWidget(prescriptionReviewList[index])));
+              itemCount: prescriptionReviewList == null
+                  ? 0
+                  : prescriptionReviewList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PrescriptionsodyWidget(
+                                  prescriptionReviewList[index])));
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(00.0),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(05),
+                        child: ListTile(
+                          trailing: Icon(Icons.keyboard_arrow_right),
+                          leading: Icon(Icons.accessible_forward),
+                          title: new Text(
+                            (prescriptionReviewList[index]["dr_info"] == null
+                                ? "No Doctor Name"
+                                : prescriptionReviewList[index]["dr_info"]
+                                    ["name"]),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: new Text(
+                            prescriptionReviewList[index]["is_reviewed"] == 1
+                                ? "Review Done"
+                                : "Review Pending",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ));
               },
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(00.0),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(05),
-                  child: ListTile(
-                    trailing: Icon(Icons.keyboard_arrow_right),
-                    leading: Icon(Icons.accessible_forward),
-                    title: new Text(
-                      (prescriptionReviewList[index]["dr_info"]==null?"No Doctor Name":prescriptionReviewList[index]["dr_info"]["name"]),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: new Text(
-                      prescriptionReviewList[index]["is_reviewed"]==1?"Review Done":"Review Pending",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ));
-        },
-      )
+            )
           : Container(
-          height: 200,
-          child: Center(
-            child: Text("No Prescription Review History"),
-          )),
-
+              height: 200,
+              child: Center(
+                child: Text("No Prescription Review History"),
+              )),
     );
   }
 }
-
 
 void showThisToast(String s) {
   Fluttertoast.showToast(

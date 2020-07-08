@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appxplorebd/models/login_response.dart';
+import 'doctor/doctor_view.dart';
 import 'file:///D:/downloads/TM/flutter_app_xplorebd/lib/view/patient/patient_view.dart';
 import 'package:flutter/material.dart';
 import 'package:appxplorebd/networking/Repsonse.dart';
@@ -14,6 +15,7 @@ class LoginUI extends StatelessWidget {
     final appTitle = 'Login';
 
     return MaterialApp(
+      color: Color(0xFF34448c),
       title: appTitle,
       home: Scaffold(
         body: MyCustomForm(),
@@ -67,7 +69,7 @@ class MyCustomFormState extends State<MyCustomForm> {
           Padding(
             padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
             child: TextFormField(
-              initialValue: "m@gmail.com",
+              initialValue: "d@gmail.com",
               validator: (value) {
                 email = value;
                 if (value.isEmpty) {
@@ -119,6 +121,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                           showThisToast("doctor");
 
                           //doctor
+                          mainD();
                         } else if (loginResponse.userInfo.userType
                             .contains("p")) {
                           //patient

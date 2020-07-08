@@ -42,7 +42,7 @@ dependencies:
   uuid: ^2.0.2
   youtube_player_flutter: ^7.0.0+6
   curved_navigation_bar: ^0.3.3
-
+  url_launcher: ^5.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -74,6 +74,9 @@ flutter:
     - assets/bloodbank.jpg
     - assets/live_chat.png
     - assets/transfusion.png
+    - assets/pharmacy.png
+    - assets/help.png
+    - assets/examination.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
