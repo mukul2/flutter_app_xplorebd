@@ -33,6 +33,7 @@ class HomePageState extends State<SubscriptionViewPatient> {
 
     this.setState(() {
       data = json.decode(response.body);
+      showThisToast("subsc size "+ (data.length).toString());
     });
 
 

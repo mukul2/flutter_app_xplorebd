@@ -1,6 +1,7 @@
 import 'package:appxplorebd/networking/ApiProvider.dart';
 import 'package:appxplorebd/networking/Const.dart';
 import 'package:appxplorebd/projPaypal/PaypalPayment.dart';
+import 'package:appxplorebd/projPaypal/config.dart';
 import 'package:appxplorebd/projPaypal/makePayment.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -8,8 +9,11 @@ import 'dart:async';
 import 'dart:convert';
 import '../login_view.dart';
 import 'package:http/http.dart' as http;
+
 List skill_info;
 List education_info;
+final String _baseUrl = "http://telemedicine.drshahidulislam.com/api/";
+
 class OnlineDoctorFullProfileView extends StatefulWidget {
   String name;
   String photo;
@@ -17,25 +21,23 @@ class OnlineDoctorFullProfileView extends StatefulWidget {
   List online_doctors_service_info;
   int id;
 
-  OnlineDoctorFullProfileView(
-      this.id, this.name, this.photo, this.designation_title,this.online_doctors_service_info);
+  OnlineDoctorFullProfileView(this.id, this.name, this.photo,
+      this.designation_title, this.online_doctors_service_info);
 
   @override
   HomePageState createState() => new HomePageState();
 }
 
 class HomePageState extends State<OnlineDoctorFullProfileView> {
-
-
   Future<String> getData() async {
     final http.Response response = await http.post(
-      "http://telemedicine.drshahidulislam.com/api/" + 'doctor-education-chamber-info',
+      "http://telemedicine.drshahidulislam.com/api/" +
+          'doctor-education-chamber-info',
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': AUTH_KEY,
       },
-      body: jsonEncode(
-          <String, String>{'dr_id': widget.id.toString()}),
+      body: jsonEncode(<String, String>{'dr_id': widget.id.toString()}),
     );
 
     this.setState(() {
@@ -50,7 +52,7 @@ class HomePageState extends State<OnlineDoctorFullProfileView> {
 
   @override
   void initState() {
-     this.getData();
+    this.getData();
   }
 
   PageController pageController = PageController(
@@ -72,7 +74,6 @@ class HomePageState extends State<OnlineDoctorFullProfileView> {
         appBar: AppBar(
           elevation: 0,
           title: new Text(widget.name),
-
           bottom: TabBar(
             tabs: [
               Tab(
@@ -85,63 +86,143 @@ class HomePageState extends State<OnlineDoctorFullProfileView> {
           ),
         ),
         body: TabBarView(
-          children: [Services((widget.online_doctors_service_info)), Skills(skill_info), Educations(education_info)],
+          children: [
+            Services((widget.online_doctors_service_info), widget.id,widget.name,widget.photo),
+            Skills(skill_info),
+            Educations(education_info)
+          ],
         ),
       ),
     );
   }
 }
 
-Widget Services(List online_doctors_service_info) {
+Widget Services(List online_doctors_service_info, int id,String name,String photo) {
   print(online_doctors_service_info);
   return new ListView.builder(
-    itemCount: online_doctors_service_info == null ? 0 : online_doctors_service_info.length,
-
+    itemCount: online_doctors_service_info == null
+        ? 0
+        : online_doctors_service_info.length,
     itemBuilder: (BuildContext context, int index) {
       return new InkWell(
-          onTap: (){
+          onTap: () {
 //            Navigator.push(
 //                context,
 //                MaterialPageRoute(builder: (context) => OnlineDoctorList((data[index]["id"]).toString())));
           },
           child: Card(
-
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(00.0),
             ),
             child: ListTile(
               title: Padding(
                 padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                child: new Text(online_doctors_service_info[index]["service_name_info"]["name"],
-                  style: TextStyle(fontWeight: FontWeight.bold),),
+                child: new Text(
+                  online_doctors_service_info[index]["service_name_info"]
+                      ["name"],
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-              subtitle:Padding(
-                padding:  EdgeInsets.fromLTRB(10, 00, 0, 10),
-                child: new Text((online_doctors_service_info[index]["fees_per_unit"]).toString()+CURRENCY_USD_SIGN,
-                  style: TextStyle(fontWeight: FontWeight.bold),),
-              ) ,
+              subtitle: Padding(
+                padding: EdgeInsets.fromLTRB(10, 00, 0, 10),
+                child: new Text(
+                  (online_doctors_service_info[index]["fees_per_unit"])
+                          .toString() +
+                      CURRENCY_USD_SIGN,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
               trailing: RaisedButton(
                 color: Colors.pink,
-                child: Text("Purchase",style: TextStyle(color: Colors.white),),
-                onPressed: (){
-                 // makePayment();
+                child: Text(
+                  "Purchase",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  // makePayment();
+                  payable_amount = (online_doctors_service_info[index]["fees_per_unit"]).toString();
+                  docID =id.toString();
+                  docNAME = name;
+                  docPhoto = photo;
+                  type = (online_doctors_service_info[index]["service_name_info"]["name"]).toString();
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (BuildContext context) => PaypalPayment(
                           onFinish: (number) async {
-
-                            // payment done
-                            showThisToast('order id: '+number);
-                            print('order id: '+number);
-
+//                            String reason;
+//                            String doc_id = online_doctors_service_info[index]
+//                                ["service_name_info"]["name"];
+//
+//                            // payment done
+//                            showThisToast('order id: ' + number);
+//                            print('order id: ' + number);
+//                            if ((online_doctors_service_info[index]
+//                                        ["service_name_info"]["name"]
+//                                    .toString()) ==
+//                                'Prescription Review') {
+//                            } else if ((online_doctors_service_info[index]
+//                                        ["service_name_info"]["name"]
+//                                    .toString()) ==
+//                                'Video Call') {
+//                            } else if ((online_doctors_service_info[index]
+//                                        ["service_name_info"]["name"]
+//                                    .toString()) ==
+//                                'Prescription Service') {
+//                              //Prescription request
+//                              reason = "Prescription request";
+//                              final http.Response response = await http.post(
+//                                _baseUrl + 'add_payment_info_only',
+//                                headers: <String, String>{
+//                                  'Content-Type':
+//                                      'application/json; charset=UTF-8',
+//                                  'Authorization': AUTH_KEY,
+//                                },
+//                                body: jsonEncode(<String, String>{
+//                                  'patient_id': USER_ID,
+//                                  'dr_id': id.toString(),
+//                                  'amount': (online_doctors_service_info[index]
+//                                          ["fees_per_unit"])
+//                                      .toString(),
+//                                  'reason': reason
+//                                }),
+//                              );
+//                              showThisToast("Api response "+response.statusCode.toString());
+//
+//                              //Navigator.of(context).pop();
+//
+//                              Navigator.push(
+//                                  context,
+//                                  MaterialPageRoute(
+//                                      builder: (context) =>
+//                                          MakePrescriptionRequestWidget(
+//                                              number,
+//                                              online_doctors_service_info[index]
+//                                                  ["fees_per_unit"],
+//                                              id.toString())));
+//                            } else if ((online_doctors_service_info[index]
+//                                        ["service_name_info"]["name"]
+//                                    .toString()) ==
+//                                'Chat') {
+//                            } else if ((online_doctors_service_info[index]
+//                                        ["service_name_info"]["name"]
+//                                    .toString()) ==
+//                                '1 Month Subscription') {
+//                            } else if ((online_doctors_service_info[index]
+//                                        ["service_name_info"]["name"]
+//                                    .toString()) ==
+//                                '3 Month Subscription') {
+//                            } else if ((online_doctors_service_info[index]
+//                                        ["service_name_info"]["name"]
+//                                    .toString()) ==
+//                                '6 Month Subscription') {
+//                            } else if ((online_doctors_service_info[index]
+//                                        ["service_name_info"]["name"]
+//                                    .toString()) ==
+//                                '1 Year Subscription') {}
                           },
                         ),
-                      )
-                  );
-
-
-
+                      ));
                 },
               ),
             ),
@@ -149,74 +230,78 @@ Widget Services(List online_doctors_service_info) {
     },
   );
 }
+
 Widget Skills(List list) {
   print(list);
   return new ListView.builder(
     itemCount: list == null ? 0 : list.length,
-
     itemBuilder: (BuildContext context, int index) {
       return new InkWell(
-          onTap: (){
+          onTap: () {
 //            Navigator.push(
 //                context,
 //                MaterialPageRoute(builder: (context) => OnlineDoctorList((data[index]["id"]).toString())));
           },
           child: Card(
-
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(00.0),
             ),
             child: ListTile(
               title: Padding(
                 padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                child: new Text(list[index]["body"],
-                  style: TextStyle(fontWeight: FontWeight.bold),),
+                child: new Text(
+                  list[index]["body"],
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-              subtitle:Padding(
-                padding:  EdgeInsets.fromLTRB(10, 00, 0, 10),
-                child: new Text((list[index]["created_at"]).toString(),
-                  style: TextStyle(fontWeight: FontWeight.bold),),
-              ) ,
+              subtitle: Padding(
+                padding: EdgeInsets.fromLTRB(10, 00, 0, 10),
+                child: new Text(
+                  (list[index]["created_at"]).toString(),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ));
     },
   );
 }
+
 Widget Educations(List education_info) {
   print(education_info);
   return new ListView.builder(
     itemCount: education_info == null ? 0 : education_info.length,
-
     itemBuilder: (BuildContext context, int index) {
       return new InkWell(
-          onTap: (){
+          onTap: () {
 //            Navigator.push(
 //                context,
 //                MaterialPageRoute(builder: (context) => OnlineDoctorList((data[index]["id"]).toString())));
           },
           child: Card(
-
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(00.0),
             ),
             child: ListTile(
               title: Padding(
                 padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                child: new Text(education_info[index]["title"].toString(),
-                  style: TextStyle(fontWeight: FontWeight.bold),),
+                child: new Text(
+                  education_info[index]["title"].toString(),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-              subtitle:Padding(
-                padding:  EdgeInsets.fromLTRB(10, 00, 0, 10),
-                child: new Text((education_info[index]["body"]).toString(),
-                  style: TextStyle(fontWeight: FontWeight.bold),),
-              ) ,
+              subtitle: Padding(
+                padding: EdgeInsets.fromLTRB(10, 00, 0, 10),
+                child: new Text(
+                  (education_info[index]["body"]).toString(),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ));
     },
   );
 }
-
-
 
 //Widget tabBody(){
 //  return
@@ -244,6 +329,119 @@ Widget Educations(List education_info) {
 //],
 //),
 //)
+
+class MakePrescriptionRequestWidget extends StatefulWidget {
+  String tranactionID;
+
+  int fees;
+
+  String docID;
+
+  MakePrescriptionRequestWidget(this.tranactionID, this.fees, this.docID);
+
+  @override
+  _MakePrescriptionRequestState createState() =>
+      _MakePrescriptionRequestState();
+}
+
+class _MakePrescriptionRequestState
+    extends State<MakePrescriptionRequestWidget> {
+  final _formKey = GlobalKey<FormState>();
+  String problem;
+  String myMessage = "Submit";
+
+  Widget StandbyWid = Text(
+    "Login",
+    style: TextStyle(color: Colors.white),
+  );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Create Prescription Request"),
+      ),
+      body: Scaffold(
+        body: SingleChildScrollView(
+            child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                "Write your problems in detail and Doctor will send you prescripton",
+                style: TextStyle(
+                    color: Color(0xFF34448c),
+
+                    fontWeight: FontWeight.bold),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: TextFormField(
+                  initialValue: "",
+                  validator: (value) {
+                    problem = value;
+                    if (value.isEmpty) {
+                      return 'Write your Problems';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+                child: SizedBox(
+                    height: 50,
+                    width: double.infinity, // match_parent
+                    child: RaisedButton(
+                      color: Color(0xFF34448c),
+                      onPressed: () async {
+                        // Validate returns true if the form is valid, or false
+                        // otherwise.
+                        if (_formKey.currentState.validate()) {
+                          // If the form is valid, display a Snackbar.
+                          setState(() {
+                            StandbyWid = Text("Please wait");
+                          });
+                          final http.Response response = await http.post(
+                            _baseUrl + 'add-prescription-request',
+                            headers: <String, String>{
+                              'Content-Type': 'application/json; charset=UTF-8',
+                              'Authorization': AUTH_KEY,
+                            },
+                            body: jsonEncode(<String, String>{
+                              'patient_id': USER_ID,
+                              'dr_id': widget.docID,
+                              'payment_status': "1",
+                              'problem': problem,
+                              'payment_details': widget.tranactionID
+                            }),
+                          );
+                          showThisToast(response.statusCode.toString());
+                          //popup count
+
+                          setState(() {
+                            StandbyWid = Text("Prescription request success");
+                          });
+                        } else {}
+                      },
+                      child: StandbyWid,
+                    )),
+              ),
+            ],
+          ),
+        )),
+      ),
+    );
+  }
+}
+
 void showThisToast(String s) {
   Fluttertoast.showToast(
       msg: s,

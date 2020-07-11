@@ -248,14 +248,14 @@ class _HomeState extends State<Home> {
     int total = 3 ;
     int current = 0 ;
 
-    Timer.periodic(new Duration(seconds: 3), (timer) {
+    Timer.periodic(new Duration(seconds: 5), (timer) {
       debugPrint(timer.tick.toString());
       double total_width = _controller.position.maxScrollExtent+320;
       double one_width = total_width/4;
       _controller.animateTo(
         one_width*current,
         curve: Curves.easeOut,
-        duration: const Duration(milliseconds: 3000),
+        duration: const Duration(milliseconds: 1000),
       );
       current ++;
       if(current>total){
@@ -1872,7 +1872,7 @@ Future<void> showNameEditDialog(BuildContext context) async {
 
 Widget ChatListWidget(BuildContext context) {
   // String UID = USER_ID;
-  String UID = "2";
+  String UID = USER_ID;
 
   // FirebaseDatabase.instance.reference().child("xploreDoc").once()
   return Scaffold(
@@ -1891,7 +1891,7 @@ Widget ChatListWidget(BuildContext context) {
             values.forEach((key, values) {
               lists.add(values);
             });
-           // showThisToast((snapshot.data.value).toString());
+           showThisToast("chat histoory siz "+(lists.length).toString());
             return lists.length > 0
                 ? new ListView.builder(
                     shrinkWrap: true,
@@ -1899,18 +1899,29 @@ Widget ChatListWidget(BuildContext context) {
                     itemBuilder: (BuildContext context, int index) {
                       return InkWell(
                         onTap: () {
-                          String chatRoom = createChatRoomName(2, 11);
-                          String own_id = "2";
-                          String own_name = "Brie Larsson";
-                          String own_photo =
-                              "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSQkxmFzA0ekvItbzZh7n2irqs2nuSCK1K8-Q&usqp=CAU";
-                          String partner_id = "11";
-                          String partner_name = "Gal Gadot";
-                          String parner_photo =
-                              "https://media1.popsugar-assets.com/files/thumbor/velDgOnJ4vMdXclF3iGXKBml2bA/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2018/01/11/067/n/1922153/2dcec7385a580320b4a0f3.56523054_edit_img_image_17359799_1515715881/i/Gal-Gadot-Makeup-Critics-Choice-Awards-2018.jpg";
+                          String own_id = UID;
+                          String own_name = USER_NAME;
+                          OWN_PHOTO = USER_PHOTO;
+                          String partner_id = "";
+                          String partner_name = "";
+                          String parner_photo ="";
 
-                          OWN_PHOTO = own_photo;
+                          if(UID == (lists[index]["sender_id"])){
+                            partner_id = lists[index]["recever_id"];
+                            partner_name = lists[index]["receiver_name"];
+                            parner_photo = lists[index]["receiver_photo"];
+                          }else{
+                            partner_id = lists[index]["sender_id"];
+                            partner_name = lists[index]["sender_name"];
+                            parner_photo = lists[index]["sender_photo"];
+
+                          }
+
+                          String own_photo =USER_PHOTO;
                           PARTNER_PHOTO = parner_photo;
+
+                          String chatRoom = createChatRoomName(int.parse(UID), int.parse(partner_id));
+
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -1924,7 +1935,7 @@ Widget ChatListWidget(BuildContext context) {
                                       chatRoom)));
                         },
                         child: Card(
-                            child: (UID == (lists[index]["sender_id"]))
+                            child: (UID == (lists[index]["sender_id"]))//im this ms sender
                                 ? ListTile(
                                     leading: CircleAvatar(
                                         backgroundImage: NetworkImage(
@@ -1958,6 +1969,8 @@ Widget ChatListWidget(BuildContext context) {
                 : Center(
                     child: Text("No Chat History"),
                   );
+          }else{
+            showThisToast(snapshot.data.value.toString());
           }
           return Center(
             child: Text("No Chat History"),

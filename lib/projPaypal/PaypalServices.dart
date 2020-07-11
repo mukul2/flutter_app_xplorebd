@@ -5,13 +5,14 @@ import 'package:http_auth/http_auth.dart';
 
 class PaypalServices {
 
-  //String domain = "https://api.sandbox.paypal.com"; // for sandbox mode
- String domain = "https://api.paypal.com"; // for production mode
+  String domain = "https://api.sandbox.paypal.com"; // for sandbox mode
+ //String domain = "https://api.paypal.com"; // for production mode
 
   // change clientId and secret with your own, provided by paypal
-  String secret = 'EJVDPj8_qePxy2nuhNs7vjtyD0Vy0DTnphtyySbZm5z4NFDvPwGbdwLjtWzTb6SFW0x39LxcrZB47sEV';
+  String secret = 'EKhFgFpUrlW1LDVxd4QwsyIkz7e3TYa2AvSv7QCI-9uAja8u2LxIwH1LIsih8FSDqekvITP2KpVmvPBm';
   //String PAY_PAL_CLIENT_ID = "AbIBVjvWbMUKsiuGMRtmiGyMbip8KXnrDeSeIXghUM1aQQW3jRnz80i6cDftFVbYbtwToA9hbQ9yCZq2" ;
-  String clientId = "AbIBVjvWbMUKsiuGMRtmiGyMbip8KXnrDeSeIXghUM1aQQW3jRnz80i6cDftFVbYbtwToA9hbQ9yCZq2" ;
+  String clientId = "AbZcTBiyddfmw5Cnh6oTKaURCmALlmN18LsGxz4WDZY6714koqcQNfJ2Qm-AIQNhWk-TjqstCTHpBQXD" ;
+ // String PAY_PAL_CLIENT_ID = "AbZcTBiyddfmw5Cnh6oTKaURCmALlmN18LsGxz4WDZY6714koqcQNfJ2Qm-AIQNhWk-TjqstCTHpBQXD" ;
 
 
   // for getting the access token from Paypal

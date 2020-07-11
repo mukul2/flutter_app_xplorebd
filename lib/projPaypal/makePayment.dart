@@ -56,6 +56,7 @@ class _makePaymentState extends State<makePayment> {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (BuildContext context) => PaypalPayment(
+
                               onFinish: (number) async {
 
                                 // payment done

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appxplorebd/projPaypal/config.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,7 +56,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         _messages = <ChatMessage>[],
         _textController = TextEditingController(),
         _messageDatabaseReference =
-        FirebaseDatabase.instance.reference().child(CLIEND_ID).child("chatHistory").child("2-11"),
+        FirebaseDatabase.instance.reference().child(CLIEND_ID).child("chatHistory").child(CHAT_ROOM),
         _photoStorageReference =
         FirebaseStorage.instance.ref().child("chat_photos",
         ) {
