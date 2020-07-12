@@ -710,10 +710,133 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 )),
+            InkWell(
+                onTap: () {
+
+
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomeVisitsDoctorsList()));
+
+
+                },
+                child: Container(
+                  height: 110,
+                  child: Card(
+                    margin: EdgeInsets.all(0.5),
+
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0.0),
+                    ),
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          height: 48,
+                          width: 48,
+                          child: Image.asset(
+                            "assets/help.png",
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Padding(
+                            padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                            child : Text(
+                              "Home Visits",
+                              style: TextStyle(color: Color(0xFF34448c)),
+                            )
+                        )
+                      ],
+                    ),
+                  ),
+                )),
           ],
         ),
       ],
     ));
+  }
+}
+
+class HomeVisitsDoctorsList extends StatefulWidget {
+  @override
+  _HomeVisitsDoctorsListState createState() => _HomeVisitsDoctorsListState();
+}
+
+class _HomeVisitsDoctorsListState extends State<HomeVisitsDoctorsList> {
+  List data;
+
+  Future<String> getData() async {
+    final http.Response response = await http.post(
+      "http://telemedicine.drshahidulislam.com/api/" + 'home_visits_doctor_search',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+
+
+
+    );
+
+    this.setState(() {
+      data = json.decode(response.body);
+    });
+
+    print(data);
+
+    return "Success!";
+  }
+
+  @override
+  void initState() {
+    this.getData();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Home Visit Doctors"),),
+      body: new ListView.builder(
+        itemCount: data == null ? 0 : data.length,
+        itemBuilder: (BuildContext context, int index) {
+          return new InkWell(
+            onTap: () {
+//              Navigator.push(
+//                  context,
+//                  MaterialPageRoute(builder: (context) =>
+//                      OnlineDoctorFullProfileView(
+//                          data[index]["id"], data[index]["name"],
+//                          data[index]["photo"],
+//                          data[index]["designation_title"],
+//                          data[index]["online_doctors_service_info"])));
+            },
+            child: Card(
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(00.0),
+              ),
+              child: ListTile(
+                subtitle: Padding(
+                  padding: EdgeInsets.fromLTRB(5, 0, 20, 5),
+                  child: new Text(data[index]["designation_title"],
+                    style: TextStyle(fontWeight: FontWeight.bold),),
+                ),
+                title: Padding(
+                  padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
+                  child: new Text(data[index]["name"],
+                    style: TextStyle(fontWeight: FontWeight.bold),),
+                ),
+                leading: Image.network(
+                    "http://telemedicine.drshahidulislam.com/" +
+                        data[index]["photo"], fit: BoxFit.fill),
+
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 
@@ -728,6 +851,9 @@ class _ProjNotificationState extends State<ProjNotification> {
     return NoticeList();
   }
 }
+
+
+
 Widget AmbulanceBodyWidget(dynamic ambulanceBody){
   return Scaffold(
     appBar: AppBar(title: Text("Ambulance"),),
@@ -1873,6 +1999,7 @@ Future<void> showNameEditDialog(BuildContext context) async {
 Widget ChatListWidget(BuildContext context) {
   // String UID = USER_ID;
   String UID = USER_ID;
+  showThisToast("user id "+ UID);
 
   // FirebaseDatabase.instance.reference().child("xploreDoc").once()
   return Scaffold(

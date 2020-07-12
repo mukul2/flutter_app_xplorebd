@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:appxplorebd/chat/model/chat_screen.dart';
 import 'package:appxplorebd/networking/ApiProvider.dart';
 import 'package:appxplorebd/view/doctor/doctor_view.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -395,6 +396,31 @@ class PaypalPaymentState extends State<PaypalPayment> {
                     String chatRoom = createChatRoomName(int.parse(USER_ID), int.parse(docID));
                     CHAT_ROOM = chatRoom;
                     print("chat room "+chatRoom);
+                     DatabaseReference _messageDatabaseReference;
+                     DatabaseReference _messageDatabaseReference_last;
+                    _messageDatabaseReference =FirebaseDatabase.instance.reference().child(CLIEND_ID).child("chatHistory").child(CHAT_ROOM);
+
+                    _messageDatabaseReference_last =FirebaseDatabase.instance.reference().child(CLIEND_ID).child("lastChatHistory");
+
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("message_body").set("Chat service payment is compleated");
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("message_type").set("TYPE_TEXT");
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("receiver_name").set(docNAME);
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("receiver_photo").set(docPhoto);
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("recever_id").set((docID));
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("sender_id").set(USER_ID);
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("sender_name").set(USER_NAME);
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("sender_photo").set(USER_PHOTO);
+                    _messageDatabaseReference_last.child(USER_ID).child(docID).child("time").set(new DateTime.now().toUtc().toIso8601String());
+
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("message_body").set("Chat service payment is compleated");
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("message_type").set("TYPE_TEXT");
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("receiver_name").set(docNAME);
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("receiver_photo").set(docPhoto);
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("recever_id").set((docID));
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("sender_id").set(USER_ID);
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("sender_name").set(USER_NAME);
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("sender_photo").set(USER_PHOTO);
+                    _messageDatabaseReference_last.child(docID).child(USER_ID).child("time").set(new DateTime.now().toUtc().toIso8601String());
                     Navigator.push(
                         context,
                         MaterialPageRoute(

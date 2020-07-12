@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:appxplorebd/networking/ApiProvider.dart';
 import 'package:appxplorebd/projPaypal/config.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -45,6 +46,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final List<ChatMessage> _messages;
   final TextEditingController _textController;
   final DatabaseReference _messageDatabaseReference;
+  final DatabaseReference _messageDatabaseReference_last;
   final StorageReference _photoStorageReference;
 
 
@@ -55,8 +57,8 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         _isComposing = false,
         _messages = <ChatMessage>[],
         _textController = TextEditingController(),
-        _messageDatabaseReference =
-        FirebaseDatabase.instance.reference().child(CLIEND_ID).child("chatHistory").child(CHAT_ROOM),
+        _messageDatabaseReference =FirebaseDatabase.instance.reference().child(CLIEND_ID).child("chatHistory").child(CHAT_ROOM),
+        _messageDatabaseReference_last =FirebaseDatabase.instance.reference().child(CLIEND_ID).child("lastChatHistory"),
         _photoStorageReference =
         FirebaseStorage.instance.ref().child("chat_photos",
         ) {
@@ -146,6 +148,26 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
     final ChatMessage message = _createMessageFromText(text,"TYPE_TEXT",widget.partner_id,widget.own_id,"125425454545454");
     _messageDatabaseReference.push().set(message.toMap());
+
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("message_body").set(text);
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("message_type").set("TYPE_TEXT");
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("receiver_name").set(widget.partner_name);
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("receiver_photo").set(widget.partner_photo);
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("recever_id").set((widget.partner_id));
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("sender_id").set(widget.own_id);
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("sender_name").set(widget.own_name);
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("sender_photo").set(widget.own_name);
+    _messageDatabaseReference_last.child(USER_ID).child(widget.partner_id).child("time").set(new DateTime.now().toUtc().toIso8601String());
+
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("message_body").set(text);
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("message_type").set("TYPE_TEXT");
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("receiver_name").set(widget.partner_name);
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("receiver_photo").set(widget.partner_photo);
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("recever_id").set((widget.partner_id));
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("sender_id").set(widget.own_id);
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("sender_name").set(widget.own_name);
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("sender_photo").set(widget.own_name);
+    _messageDatabaseReference_last.child(widget.partner_id).child(USER_ID).child("time").set(new DateTime.now().toUtc().toIso8601String());
   }
 
   void _sendImage(ImageSource imageSource) async {
@@ -154,10 +176,21 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     StorageReference photoRef = _photoStorageReference.child(fileName);
     final StorageUploadTask uploadTask = photoRef.putFile(image);
     final StorageTaskSnapshot downloadUrl = await uploadTask.onComplete;
+    String img_Link ;
     final ChatMessage message = _createMessageFromImage(
-      await downloadUrl.ref.getDownloadURL(),
+        img_Link=  await downloadUrl.ref.getDownloadURL(),
     );
     _messageDatabaseReference.push().set(message.toMap());
+
+    _messageDatabaseReference_last.child(widget.partner_id).child("message_body").set(img_Link);
+    _messageDatabaseReference_last.child(widget.partner_id).child("message_type").set("TYPE_IMAGE");
+    _messageDatabaseReference_last.child(widget.partner_id).child("receiver_name").set(widget.partner_name);
+    _messageDatabaseReference_last.child(widget.partner_id).child("receiver_photo").set(widget.partner_photo);
+    _messageDatabaseReference_last.child(widget.partner_id).child("recever_id").set((widget.partner_id));
+    _messageDatabaseReference_last.child(widget.partner_id).child("sender_id").set(widget.own_id);
+    _messageDatabaseReference_last.child(widget.partner_id).child("sender_name").set(widget.own_name);
+    _messageDatabaseReference_last.child(widget.partner_id).child("sender_photo").set(widget.own_name);
+    _messageDatabaseReference_last.child(widget.partner_id).child("time").set(new DateTime.now().toUtc().toIso8601String());
   }
 
   void _sendImageFromCamera() async {
