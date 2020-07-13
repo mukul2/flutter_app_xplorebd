@@ -42,7 +42,7 @@ class MyCustomFormState extends State<MyCustomForm> {
   // not a GlobalKey<MyCustomFormState>.
   final _formKey = GlobalKey<FormState>();
   String email, password;
-  String myMessage = "Login";
+  String myMessage = "Submit";
 
   Widget StandbyWid = Text(
     "Login",
