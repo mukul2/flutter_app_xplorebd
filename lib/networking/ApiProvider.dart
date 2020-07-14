@@ -15,6 +15,7 @@ import 'dart:async';
   String USER_PHOTO ="";
   String USER_MOBILE ="";
   String USER_EMAIL ="";
+  int DOC_HOME_VISIT =0;
 
 
   final String _baseUrl = "http://telemedicine.drshahidulislam.com/api/";
@@ -36,6 +37,27 @@ import 'dart:async';
       USER_EMAIL = loginResponse.userInfo.email;
       showThisToast("phoyo link "+USER_PHOTO);
       return loginResponse;
+    } else {
+      throw Exception('Failed to load album');
+    }
+  }
+  Future<dynamic> performLoginSecond(String email, String password) async {
+    final http.Response response = await http.post(
+      _baseUrl + 'login',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'email': email, 'password': password}),
+    );
+    showThisToast(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      LoginResponse loginResponse =LoginResponse.fromJson(json.decode(response.body));
+      USER_NAME = loginResponse.userInfo.name;
+      USER_PHOTO = loginResponse.userInfo.photo;
+      USER_MOBILE = loginResponse.userInfo.phone;
+      USER_EMAIL = loginResponse.userInfo.email;
+      showThisToast("phoyo link "+USER_PHOTO);
+      return json.decode(response.body);
     } else {
       throw Exception('Failed to load album');
     }

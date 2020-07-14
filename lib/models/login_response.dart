@@ -30,6 +30,7 @@ class LoginResponse {
 class UserInfo {
   int id;
   int status;
+  int home_visits;
   String name;
   String designationTitle;
   int department;
@@ -45,6 +46,7 @@ class UserInfo {
   UserInfo(
       {this.id,
         this.status,
+        this.home_visits,
         this.name,
         this.designationTitle,
         this.department,
@@ -60,6 +62,7 @@ class UserInfo {
   UserInfo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     status = json['status'];
+    home_visits = json['home_visits'];
     name = json['name'];
     designationTitle = json['designation_title'];
     department = json['department'];
@@ -77,6 +80,7 @@ class UserInfo {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['status'] = this.status;
+    data['home_visits'] = this.home_visits;
     data['name'] = this.name;
     data['designation_title'] = this.designationTitle;
     data['department'] = this.department;

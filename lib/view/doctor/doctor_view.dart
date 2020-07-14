@@ -267,10 +267,11 @@ class _HomeState extends State<Home> {
       children: <Widget>[
         InkWell(
             onTap: () {
+
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DeptListOnlineDocWidget(context),
+                    builder: (context) => ConfirmedListWidget(),
                   ));
             },
             child: Card(
@@ -301,10 +302,12 @@ class _HomeState extends State<Home> {
             )), //chambeer app
         InkWell(
             onTap: () {
+
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => DeptChamberDocWidget(context)));
+                    builder: (context) => PendingListWidget(),
+                  ));
             },
             child: Container(
               height: 110,
@@ -571,11 +574,404 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
-            )),
+            )), //earnings
+        InkWell(
+            onTap: () {
+              // _controller.jumpTo(_controller.position.maxScrollExtent);
+              //
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeVisitWidget(),
+                  ));
+            },
+            child: Container(
+              height: 110,
+              child: Card(
+                margin: EdgeInsets.all(0.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0),
+                ),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 48,
+                      width: 48,
+                      child: Image.asset(
+                        "assets/help.png",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                        child: Text(
+                          "Home Visits",
+                          style: TextStyle(color: Color(0xFF34448c)),
+                        ))
+                  ],
+                ),
+              ),
+            )), //
       ],
     );
   }
 }
+
+class HomeVisitWidget extends StatefulWidget {
+  @override
+  _HomeVisitWidgetState createState() => _HomeVisitWidgetState();
+}
+
+class _HomeVisitWidgetState extends State<HomeVisitWidget> {
+  bool homeVisits = DOC_HOME_VISIT == 0 ? false : true;
+
+  Future<void> _onRememberMeChanged(bool newValue) async {
+    setState(() {
+      homeVisits = newValue;
+      newValue == true ? DOC_HOME_VISIT = 1 : DOC_HOME_VISIT = 0;
+    });
+
+    final http.Response response = await http.post(
+      _baseUrl + 'update_home_visit_status',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(
+          <String, String>{'id': USER_ID, 'status': DOC_HOME_VISIT.toString()}),
+    );
+    dynamic data = jsonEncode(response.body);
+    print((response.body).toString());
+    showThisToast((response.statusCode).toString());
+  }
+
+  List appointments = [];
+
+  Future<String> getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'get_home_visit_list',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(<String, String>{'user_type': 'doctor', 'id': USER_ID}),
+    );
+    this.setState(() {
+      appointments = json.decode(response.body);
+      print(appointments.toString());
+    });
+    return "Success!";
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    this.getData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Home Visits"),
+        ),
+        body: Column(children: <Widget>[
+          CheckboxListTile(
+            title: Text("Home Service"),
+            value: homeVisits,
+            onChanged: _onRememberMeChanged,
+            controlAffinity:
+                ListTileControlAffinity.leading, //  <-- leading Checkbox
+          ),
+          ((appointments.length > 0)
+              ? new ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: appointments == null ? 0 : appointments.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0.0),
+                      ),
+                      child: Padding(
+                          padding: EdgeInsets.all(0),
+                          child: Column(
+                            children: <Widget>[
+                              ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(_baseUrl_image +
+                                      appointments[index]["patient_info"]
+                                          ["photo"]),
+                                ),
+                                title: new Text(
+                                  appointments[index]["date"],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: new Text(
+                                  appointments[index]["home_address"],
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              CheckboxListTile(
+                                title: Text("Served"),
+                                value: appointments[index]["status"] == 0
+                                    ? false
+                                    : true,
+                                onChanged: (bool newValue) async {
+                                  final http.Response response =
+                                      await http.post(
+                                    _baseUrl + 'change_home_visit_status',
+                                    headers: <String, String>{
+                                      'Content-Type':
+                                          'application/json; charset=UTF-8',
+                                      'Authorization': AUTH_KEY,
+                                    },
+                                    body: jsonEncode(<String, String>{
+                                      'status': newValue ? "1" : "0",
+                                      'id':
+                                          (appointments[index]["id"]).toString()
+                                    }),
+                                  );
+                                  showThisToast(
+                                      (response.statusCode).toString());
+                                  this.getData();
+                                },
+                                controlAffinity: ListTileControlAffinity
+                                    .leading, //  <-- leading Checkbox
+                              ),
+                            ],
+                          )),
+                    );
+                  },
+                )
+              : Center(
+                  child: Text("No Data"),
+                ))
+        ]));
+  }
+}
+
+class ConfirmedListWidget extends StatefulWidget {
+  @override
+  _ConfirmedListWidgetState createState() => _ConfirmedListWidgetState();
+}
+
+class _ConfirmedListWidgetState extends State<ConfirmedListWidget> {
+  List confirmedList = [];
+
+
+  Future getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'get-appointment-list',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(
+          <String, String>{'user_type': "doctor", 'id': USER_ID, 'status': "1"}),
+    );
+    this.setState(() {
+      confirmedList = json.decode(response.body);
+      print(confirmedList.toString());
+     // showThisToast((confirmedList.length).toString());
+
+    });
+
+  }
+  @override
+  void initState() {
+    this.getData();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("My Confirmed Appointments"),
+      ),
+      body:(confirmedList!= null && confirmedList.length>0) ? ListView.builder(
+        itemCount:
+        confirmedList== null ? 0 : confirmedList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return new InkWell(
+              onTap: () {},
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(00.0),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      trailing: Icon(Icons.keyboard_arrow_right),
+                      leading: CircleAvatar(backgroundImage: NetworkImage(_baseUrl_image+confirmedList[index]["patient_info"]["photo"]),),
+                      title: new Text(
+                        confirmedList[index]["patient_info"]["name"],
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: new Text(
+                        confirmedList[index]["problems"],
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Row( mainAxisAlignment: MainAxisAlignment.end,children: <Widget>[
+                      RaisedButton(
+                        color: Colors.white,
+                        elevation: 0,
+                        onPressed: () async {
+                          final http.Response response =
+                          await http.post(
+                            _baseUrl + 'change-appointment-status',
+                            headers: <String, String>{
+                              'Content-Type':
+                              'application/json; charset=UTF-8',
+                              'Authorization': AUTH_KEY,
+                            },
+                            body: jsonEncode(<String, String>{
+                              'status': "3" ,
+                              'appointment_id':
+                              (confirmedList[index]["id"]).toString()
+                            }),
+
+                          );
+                          dynamic res = json.decode(response.body);
+                          showThisToast(res["message"]);
+                          this.getData();
+                        },
+                        child: Text("Mark as Served"),
+                      ),
+                      RaisedButton(
+                        color: Colors.white,
+                        elevation: 0,
+                        onPressed: () async {
+
+                        },
+                        child: Text("Make Prescription"),
+                      )
+                    ],),
+
+
+                  ],
+                ),
+              ));
+        },
+      ):Center(child: Text("No Appointmnt Data"),),
+    );
+  }
+}
+
+
+class PendingListWidget extends StatefulWidget {
+  @override
+  _PendingListWidgetState createState() => _PendingListWidgetState();
+}
+
+class _PendingListWidgetState extends State<PendingListWidget> {
+  List pendingList = [];
+
+
+  Future getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'get-appointment-list',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(
+          <String, String>{'user_type': "doctor", 'id': USER_ID, 'status': "0"}),
+    );
+    this.setState(() {
+      pendingList = json.decode(response.body);
+      print(pendingList.toString());
+      // showThisToast((confirmedList.length).toString());
+
+    });
+
+  }
+  @override
+  void initState() {
+    this.getData();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("My Pending Appointments"),
+      ),
+      body:(pendingList!= null && pendingList.length>0) ? ListView.builder(
+        itemCount:
+        pendingList== null ? 0 : pendingList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return new InkWell(
+              onTap: () {},
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(00.0),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      trailing: Icon(Icons.keyboard_arrow_right),
+                      leading: CircleAvatar(backgroundImage: NetworkImage(_baseUrl_image+pendingList[index]["patient_info"]["photo"]),),
+                      title: new Text(
+                        pendingList[index]["patient_info"]["name"],
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: new Text(
+                        pendingList[index]["problems"],
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+
+                      RaisedButton(
+                        color: Colors.white,
+                        elevation: 0,
+                        onPressed: () async {
+                          final http.Response response =
+                          await http.post(
+                            _baseUrl + 'change-appointment-status',
+                            headers: <String, String>{
+                              'Content-Type':
+                              'application/json; charset=UTF-8',
+                              'Authorization': AUTH_KEY,
+                            },
+                            body: jsonEncode(<String, String>{
+                              'status': "1" ,
+                              'appointment_id':
+                              (pendingList[index]["id"]).toString()
+                            }),
+
+                          );
+                          dynamic res = json.decode(response.body);
+                          showThisToast(res["message"]);
+                          this.getData();
+                        },
+                        child: Text("Confirm"),
+                      ),
+                      RaisedButton(
+                        color: Colors.white,
+                        elevation: 0,
+                        onPressed: () async {
+
+                        },
+                        child: Text("Test Recommendation"),
+                      )
+                    ],),
+
+
+                  ],
+                ),
+              ));
+        },
+      ):Center(child: Text("No Appointmnt Data"),),
+    );
+  }
+}
+
+
 
 class ProjNotification extends StatefulWidget {
   @override

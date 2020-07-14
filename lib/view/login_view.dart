@@ -15,7 +15,7 @@ class LoginUI extends StatelessWidget {
     final appTitle = 'Login';
 
     return MaterialApp(
-      color: Color(0xFF34448c),
+      color: Colors.blueAccent,
       title: appTitle,
       home: Scaffold(
         body: MyCustomForm(),
@@ -69,7 +69,7 @@ class MyCustomFormState extends State<MyCustomForm> {
           Padding(
             padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
             child: TextFormField(
-              initialValue: "p@gmail.com",
+              initialValue: "d@gmail.com",
               validator: (value) {
                 email = value;
                 if (value.isEmpty) {
@@ -110,6 +110,7 @@ class MyCustomFormState extends State<MyCustomForm> {
 
                       LoginResponse loginResponse =
                           await performLogin(email, password);
+                      print(loginResponse.toString());
                       showThisToast(loginResponse.message);
                       setState(() {
                         StandbyWid = Text(loginResponse.message);
@@ -119,7 +120,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                         USER_ID = loginResponse.userInfo.id.toString();
                         if (loginResponse.userInfo.userType.contains("d")) {
                           showThisToast("doctor");
-
+                          DOC_HOME_VISIT = loginResponse.userInfo.home_visits;
                           //doctor
                           mainD();
                         } else if (loginResponse.userInfo.userType
