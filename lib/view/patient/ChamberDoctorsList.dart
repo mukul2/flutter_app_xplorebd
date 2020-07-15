@@ -79,7 +79,10 @@ class HomePageState extends State<ChamberDoctorList> {
                   padding: EdgeInsets.fromLTRB(5, 15, 0, 5),
                   child: new Text(data[index]["name"],style: TextStyle(fontWeight: FontWeight.bold),),
                 ),
-                leading: Image.network("http://telemedicine.drshahidulislam.com/"+data[index]["photo"],fit: BoxFit.fill),
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(("http://telemedicine.drshahidulislam.com/" +
+                      data[index]["photo"])),
+                ),
 
               ),
             ),
@@ -152,9 +155,10 @@ Widget ChamberDoctorListWidget(String id) {
                       child: new Text(projectSnap.data[index]["name"],
                         style: TextStyle(fontWeight: FontWeight.bold),),
                     ),
-                    leading: Image.network(
-                        "http://telemedicine.drshahidulislam.com/" +
-                            projectSnap.data[index]["photo"], fit: BoxFit.fill),
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(("http://telemedicine.drshahidulislam.com/" +
+                          projectSnap.data[index]["photo"])),
+                    ),
 
                   ),
                 ),

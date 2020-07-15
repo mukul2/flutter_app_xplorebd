@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-String UID = "2";
+String UID = USER_ID;
 
 class ChatMessage extends StatelessWidget {
   final String message_body_;
@@ -59,11 +59,13 @@ class ChatMessage extends StatelessWidget {
                       margin: const EdgeInsets.only(top: 5.0),
                       child: message_type_ == "TYPE_TEXT"
                           ? (UID == sender_id_
-                              ? (Padding(
-                                  padding: EdgeInsets.all(10),
+                              ? (Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  color: Colors.pink,
                                   child: Container(
-                                    color: Colors.pink,
-                                    margin: EdgeInsets.fromLTRB(00, 50, 00, 0),
+                                    margin: EdgeInsets.fromLTRB(00, 00, 00, 0),
                                     child: Padding(
                                       padding: EdgeInsets.all(10),
                                       child: Text(
@@ -73,26 +75,30 @@ class ChatMessage extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ))
-                              : (Container(
+                                  )))
+                              : (Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                                   color: Colors.blueAccent,
-                                  margin: EdgeInsets.fromLTRB(50, 0, 00, 0),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(10),
-                                    child: Text(message_body_,
-                                        style: TextStyle(color: Colors.white)),
-                                  ),
-                                )))
+                                  child: Container(
+                                    margin: EdgeInsets.fromLTRB(00, 0, 00, 0),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Text(message_body_,
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                    ),
+                                  ))))
                           : UID == sender_id_
                               ? (Container(
                                   height: 300,
-                                  margin: EdgeInsets.fromLTRB(00, 00, 50, 0),
+                                  margin: EdgeInsets.fromLTRB(00, 00, 00, 0),
                                   child: Image.network(message_body_),
                                 ))
                               : Container(
                                   height: 300,
-                                  margin: EdgeInsets.fromLTRB(50, 00, 00, 0),
+                                  margin: EdgeInsets.fromLTRB(00, 00, 00, 0),
                                   child: Image.network(message_body_),
                                 ),
                     ),

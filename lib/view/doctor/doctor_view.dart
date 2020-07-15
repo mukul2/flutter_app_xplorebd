@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show File, Platform;
+import 'package:appxplorebd/projPaypal/config.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/rendering.dart';
 import 'package:path/path.dart';
@@ -89,7 +90,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int bottomSelectedIndex = 0;
   int _page = 0;
-  List _titles = ["Home", "Notifications", "Profile", "Appointments", "Blog"];
+  List _titles = ["Home", "Notifications", "Profile",  "Blog","Settings"];
   GlobalKey _bottomNavigationKey = GlobalKey();
 
   List<BottomNavigationBarItem> buildBottomNavBarItems() {
@@ -159,8 +160,9 @@ class _MyHomePageState extends State<MyHomePage> {
         Home(),
         ProjNotification(),
         Profile(),
-        Appointment(),
+
         BlogActivityWithState(),
+        SettingsWidState()
       ],
     );
   }
@@ -440,7 +442,9 @@ class _HomeState extends State<Home> {
             )), //ambulance
         InkWell(
             onTap: () {
-              // _controller.jumpTo(_controller.position.maxScrollExtent);
+
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => PrescriptionRequestWid()));
             },
             child: Container(
               height: 110,
@@ -509,6 +513,9 @@ class _HomeState extends State<Home> {
 
         InkWell(
             onTap: () {
+
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => VideoCallListWidget()));
               // _controller.jumpTo(_controller.position.maxScrollExtent);
             },
             child: Container(
@@ -788,7 +795,7 @@ class _ConfirmedListWidgetState extends State<ConfirmedListWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Confirmed Appointments"),
+        title: Text("Confirmed Appointments"),
       ),
       body:(confirmedList!= null && confirmedList.length>0) ? ListView.builder(
         itemCount:
@@ -896,7 +903,7 @@ class _PendingListWidgetState extends State<PendingListWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Pending Appointments"),
+        title: Text("Pending Appointments"),
       ),
       body:(pendingList!= null && pendingList.length>0) ? ListView.builder(
         itemCount:
@@ -925,7 +932,14 @@ class _PendingListWidgetState extends State<PendingListWidget> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
+                        RaisedButton(
+                          color: Colors.white,
+                          elevation: 0,
+                          onPressed: () async {
 
+                          },
+                          child: Text("View Profile"),
+                        ),
                       RaisedButton(
                         color: Colors.white,
                         elevation: 0,
@@ -971,7 +985,258 @@ class _PendingListWidgetState extends State<PendingListWidget> {
   }
 }
 
+class VideoCallListWidget extends StatefulWidget {
+  @override
+  _VideoCallListWidgetState createState() => _VideoCallListWidgetState();
+}
 
+class _VideoCallListWidgetState extends State<VideoCallListWidget> {
+  List VideoCallListList = [];
+
+
+  Future getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'get_video_appointment_list',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(
+          <String, String>{'user_type': "doctor", 'id': USER_ID,}),
+    );
+    this.setState(() {
+      VideoCallListList = json.decode(response.body);
+      print(VideoCallListList.toString());
+      // showThisToast((confirmedList.length).toString());
+
+    });
+
+  }
+  @override
+  void initState() {
+    this.getData();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Video Calls"),
+      ),
+      body:(VideoCallListList!= null && VideoCallListList.length>0) ? ListView.builder(
+        shrinkWrap: true,
+        itemCount:
+        VideoCallListList== null ? 0 : VideoCallListList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return  Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(00.0),
+            ),
+            child: Column(
+
+              children: <Widget>[
+                ListTile(
+                  trailing: Icon(Icons.call),
+                  leading: CircleAvatar(backgroundImage: NetworkImage((_baseUrl_image+VideoCallListList[index]["patient_info"]["photo"]).toString()),),
+                  title: new Text(
+                    VideoCallListList[index]["patient_info"]["name"],
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: new Text(
+                    VideoCallListList[index]["created_at"],
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  child:  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+
+                      Flexible(child:CheckboxListTile(
+                        title: Text("Seved"),
+                        value: VideoCallListList[index]["appointment_status"]==1?true:false,
+                        onChanged: (bool newValue) async {
+                          final http.Response response =
+                          await http.post(
+                            _baseUrl + 'change_video_appointment_status',
+                            headers: <String, String>{
+                              'Content-Type':
+                              'application/json; charset=UTF-8',
+                              'Authorization': AUTH_KEY,
+                            },
+                            body: jsonEncode(<String, String>{
+                              'status': newValue ? "1" : "0",
+                              'appointment_id':
+                              (VideoCallListList[index]["id"]).toString()
+                            }),
+                          );
+                          showThisToast(
+                              (response.statusCode).toString());
+                          this.getData();
+                        },
+                        controlAffinity:
+                        ListTileControlAffinity.leading, //  <-- leading Checkbox
+                      ),),
+                      Flexible(child:RaisedButton(
+                        color: Colors.white,
+                        elevation: 0,
+                        onPressed: () async {
+
+                        },
+                        child: Text("View Profile"),
+                      ),),
+
+
+
+                    ],),
+                )
+
+
+
+              ],
+            ),
+          );
+        },
+      ):Center(child: Text("No Appointmnt Data"),),
+    );
+  }
+}
+
+class PrescriptionRequestWid extends StatefulWidget {
+  @override
+  _PrescriptionRequestWidState createState() => _PrescriptionRequestWidState();
+}
+
+class _PrescriptionRequestWidState extends State<PrescriptionRequestWid> {
+  List prescriptionReqList = [];
+
+  Future<String> getData() async {
+    final http.Response response = await http.post(
+      _baseUrl + 'view-prescription-request',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': AUTH_KEY,
+      },
+      body: jsonEncode(<String, String>{'id': USER_ID, 'user_type': 'doctor'}),
+    );
+    print(response.body);
+    this.setState(() {
+      prescriptionReqList = json.decode(response.body);
+      showThisToast("pres req size "+(prescriptionReqList.length).toString());
+
+    });
+    return "Success!";
+
+
+  }
+  @override
+  void initState() {
+    this.getData();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Prescription Request"),
+      ),
+      body: (prescriptionReqList != null && prescriptionReqList.length > 0)
+          ? new ListView.builder(
+        itemCount: prescriptionReqList == null ? 0 : prescriptionReqList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return new InkWell(
+              onTap: () {
+//                Navigator.push(
+//                    context,
+//                    MaterialPageRoute(
+//                        builder: (context) => PrescriptionsodyWidget(
+//                            prescriptionReqList[index])));
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(00.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(05),
+                  child: ListTile(
+                    trailing: Icon(Icons.keyboard_arrow_right),
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(_baseUrl_image+ prescriptionReqList[index]["patient_info"]["photo"]),
+                    ),
+                    title: new Text(
+                      (prescriptionReqList[index]["dr_info"] == null
+                          ? "No Doctor Name"
+                          : prescriptionReqList[index]["patient_info"]["name"]),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: new Text(
+                      prescriptionReqList[index]["problem"],
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ));
+        },
+      )
+          : Container(
+          height: 200,
+          child: Center(
+            child: Text("No Prescription Request"),
+          )),
+    );
+  }
+}
+
+
+
+
+class myServicesWidget extends StatefulWidget {
+  @override
+  _myServicesWidgetState createState() => _myServicesWidgetState();
+}
+
+class _myServicesWidgetState extends State<myServicesWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Text("Services");
+  }
+}
+
+class SettingsWidState extends StatefulWidget {
+  @override
+  _SettingsWidStateState createState() => _SettingsWidStateState();
+}
+
+class _SettingsWidStateState extends State<SettingsWidState> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: new PreferredSize(
+              preferredSize: Size.fromHeight(kToolbarHeight),
+              child: new Container(
+                color: Colors.white,
+                height: 50.0,
+                child: new TabBar(
+                  tabs: [
+                    Tab(text: "Services",),
+                    Tab(text: "Documents"),
+                  ],
+                ),
+              ),
+            ),
+            body: TabBarView(
+              children: [
+                myServicesWidget(),
+                Center(
+                  child : Text("Documents")
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+}
 
 class ProjNotification extends StatefulWidget {
   @override
@@ -2149,7 +2414,8 @@ Future<void> showNameEditDialog(BuildContext context) async {
 
 Widget ChatListWidget(BuildContext context) {
   // String UID = USER_ID;
-  String UID = "2";
+  String UID = USER_ID;
+  showThisToast("user id " + UID);
 
   // FirebaseDatabase.instance.reference().child("xploreDoc").once()
   return Scaffold(
@@ -2168,73 +2434,88 @@ Widget ChatListWidget(BuildContext context) {
             values.forEach((key, values) {
               lists.add(values);
             });
-            // showThisToast((snapshot.data.value).toString());
+            showThisToast("chat histoory siz " + (lists.length).toString());
             return lists.length > 0
                 ? new ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: lists.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return InkWell(
-                        onTap: () {
-                          String chatRoom = createChatRoomName(2, 11);
-                          String own_id = "2";
-                          String own_name = "Brie Larsson";
-                          String own_photo =
-                              "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSQkxmFzA0ekvItbzZh7n2irqs2nuSCK1K8-Q&usqp=CAU";
-                          String partner_id = "11";
-                          String partner_name = "Gal Gadot";
-                          String parner_photo =
-                              "https://media1.popsugar-assets.com/files/thumbor/velDgOnJ4vMdXclF3iGXKBml2bA/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2018/01/11/067/n/1922153/2dcec7385a580320b4a0f3.56523054_edit_img_image_17359799_1515715881/i/Gal-Gadot-Makeup-Critics-Choice-Awards-2018.jpg";
+                shrinkWrap: true,
+                itemCount: lists.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return InkWell(
+                    onTap: () {
+                      String own_id = UID;
+                      String own_name = USER_NAME;
+                      OWN_PHOTO = USER_PHOTO;
+                      String partner_id = "";
+                      String partner_name = "";
+                      String parner_photo = "";
 
-                          OWN_PHOTO = own_photo;
-                          PARTNER_PHOTO = parner_photo;
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChatScreen(
-                                      own_id,
-                                      own_name,
-                                      own_photo,
-                                      partner_id,
-                                      partner_name,
-                                      parner_photo,
-                                      chatRoom)));
-                        },
-                        child: Card(
-                            child: (UID == (lists[index]["sender_id"]))
-                                ? ListTile(
-                                    leading: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                      "http://telemedicine.drshahidulislam.com/" +
-                                          lists[index]["receiver_photo"],
-                                    )),
-                                    title: Text(lists[index]["receiver_name"]),
-                                    subtitle: (lists[index]["message_body"])
-                                            .toString()
-                                            .startsWith("http")
-                                        ? Text("Photo")
-                                        : Text((lists[index]["message_body"])
-                                            .toString()),
-                                  )
-                                : ListTile(
-                                    leading: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                      "http://telemedicine.drshahidulislam.com/" +
-                                          lists[index]["sender_photo"],
-                                    )),
-                                    title: Text(lists[index]["sender_name"]),
-                                    subtitle: (lists[index]["message_body"])
-                                            .toString()
-                                            .startsWith("http")
-                                        ? Text("Photo")
-                                        : Text((lists[index]["message_body"])
-                                            .toString()),
-                                  )),
-                      );
-                    })
-                : Center(
-                    child: Text("No Chat History"),
+                      if (UID == (lists[index]["sender_id"])) {
+                        partner_id = lists[index]["recever_id"];
+                        partner_name = lists[index]["receiver_name"];
+                        parner_photo = lists[index]["receiver_photo"];
+                      } else {
+                        partner_id = lists[index]["sender_id"];
+                        partner_name = lists[index]["sender_name"];
+                        parner_photo = lists[index]["sender_photo"];
+                      }
+
+                      String own_photo = USER_PHOTO;
+                      PARTNER_PHOTO = parner_photo;
+
+                      String chatRoom = createChatRoomName(
+                          int.parse(UID), int.parse(partner_id));
+                      CHAT_ROOM = chatRoom;
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChatScreen(
+                                  own_id,
+                                  own_name,
+                                  own_photo,
+                                  partner_id,
+                                  partner_name,
+                                  parner_photo,
+                                  chatRoom)));
+                    },
+                    child: Card(
+                        child: (UID ==
+                            ((lists[index]["sender_id"])
+                                .toString())) //im this ms sender
+                            ? ListTile(
+                          leading: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                "http://telemedicine.drshahidulislam.com/" +
+                                    lists[index]["receiver_photo"],
+                              )),
+                          title: Text(lists[index]["receiver_name"]),
+                          subtitle: (lists[index]["message_body"])
+                              .toString()
+                              .startsWith("http")
+                              ? Text("Photo")
+                              : Text((lists[index]["message_body"])
+                              .toString()),
+                        )
+                            : ListTile(
+                          leading: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                "http://telemedicine.drshahidulislam.com/" +
+                                    lists[index]["sender_photo"],
+                              )),
+                          title: Text(lists[index]["sender_name"]),
+                          subtitle: (lists[index]["message_body"])
+                              .toString()
+                              .startsWith("http")
+                              ? Text("Photo")
+                              : Text((lists[index]["message_body"])
+                              .toString()),
+                        )),
                   );
+                })
+                : Center(
+              child: Text("No Chat History"),
+            );
+          } else {
+            //showThisToast(snapshot.data.value.toString());
           }
           return Center(
             child: Text("No Chat History"),

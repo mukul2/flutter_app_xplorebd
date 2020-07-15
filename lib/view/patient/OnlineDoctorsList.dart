@@ -155,9 +155,10 @@ Widget OnlineDoctorListWidget(String id) {
                       child: new Text(projectSnap.data[index]["name"],
                         style: TextStyle(fontWeight: FontWeight.bold),),
                     ),
-                    leading: Image.network(
-                        "http://telemedicine.drshahidulislam.com/" +
-                            projectSnap.data[index]["photo"], fit: BoxFit.fill),
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(("http://telemedicine.drshahidulislam.com/" +
+                          projectSnap.data[index]["photo"])),
+                    ),
 
                   ),
                 ),
