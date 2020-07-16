@@ -3,7 +3,11 @@ import 'dart:convert';
 import 'dart:io' show File, Platform;
 import 'package:appxplorebd/projPaypal/config.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:path/path.dart';
 import 'package:async/async.dart';
 import 'dart:io';
@@ -2263,7 +2267,7 @@ Widget ChatListWidget(BuildContext context) {
                           String chatRoom = createChatRoomName(
                               int.parse(UID), int.parse(partner_id));
                           CHAT_ROOM = chatRoom;
-                          showThisToast("chat room "+ CHAT_ROOM);
+                          showThisToast("chat room " + CHAT_ROOM);
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -2842,6 +2846,12 @@ class HomeVisitViewPagerWid extends StatefulWidget {
 }
 
 class _HomeVisitViewPagerWidState extends State<HomeVisitViewPagerWid> {
+  double latitude;
+
+  double longitude;
+
+  String address;
+
   int selected = 0;
 
   PageController pageController = PageController(
@@ -2849,10 +2859,67 @@ class _HomeVisitViewPagerWidState extends State<HomeVisitViewPagerWid> {
     keepPage: true,
   );
 
-  Widget buildPageView() {
+  _getCurrentLocation() {
+    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+
+    geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position) {
+      setState(() {
+        latitude = position.latitude;
+        longitude = position.longitude;
+      });
+    }).catchError((e) {
+      print(e);
+    });
+  }
+
+  Widget buildPageView(BuildContext context) {
     return ListView(
       shrinkWrap: true,
       children: <Widget>[
+        Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              (latitude != null)
+                  ? Text("Current location")
+                  : Text("Getting your location"),
+              FlatButton(
+                onPressed: () async {
+                  Prediction prediction = await PlacesAutocomplete.show(
+                      context: context,
+                      apiKey: "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0",
+                      mode: Mode.overlay,
+                      // Mode.overlay
+                      language: "en",
+                      components: [Component(Component.country, "bd")]);
+                  showThisToast((prediction.description).toString());
+                  GoogleMapsPlaces _places = new GoogleMapsPlaces(
+                      apiKey:
+                          "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0"); //Same API_KEY as above
+                  PlacesDetailsResponse detail =
+                      await _places.getDetailsByPlaceId(prediction.placeId);
+
+                  // double latitude = detail.result.geometry.location.lat;
+                  // double longitude = detail.result.geometry.location.lng;
+                  String address = prediction.description;
+
+                  setState(() {
+                    latitude = detail.result.geometry.location.lat;
+                    longitude = detail.result.geometry.location.lng;
+                  });
+                },
+                child: Padding(
+                    padding: EdgeInsets.fromLTRB(10, 0, 00, 0),
+                    child: Text("Change Location",
+                        style: TextStyle(
+                            color: tColor, fontWeight: FontWeight.bold))),
+              )
+            ],
+          ),
+        ),
         Container(
           height: 50,
           child: selected == 0
@@ -2863,19 +2930,24 @@ class _HomeVisitViewPagerWidState extends State<HomeVisitViewPagerWid> {
                         color: tColor,
                         child: Padding(
                           padding: EdgeInsets.all(05),
-                          child: Container(width : 100,child : Center(child : Text("Doctors",
-                              style:
-                              TextStyle(color: Colors.white, fontSize: 18)))),
+                          child: Container(
+                              width: 100,
+                              child: Center(
+                                  child: Text("Doctors",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 18)))),
                         )),
                     Card(
                         color: Colors.white,
                         child: Padding(
                           padding: EdgeInsets.all(05),
-                          child: Container(width : 100,child : Center(child : Text(
-
-                            "My Visiors",
-                            style: TextStyle(color: tColor, fontSize: 18),
-                          ))),
+                          child: Container(
+                              width: 100,
+                              child: Center(
+                                  child: Text(
+                                "My Visiors",
+                                style: TextStyle(color: tColor, fontSize: 18),
+                              ))),
                         )),
                   ],
                 )
@@ -2886,18 +2958,26 @@ class _HomeVisitViewPagerWidState extends State<HomeVisitViewPagerWid> {
                       color: Colors.white,
                       child: Padding(
                         padding: EdgeInsets.all(05),
-                        child: Container(width : 100,child : Center(child : Text("Doctors",
-                            style: TextStyle(color: tColor, fontSize: 18)))),
+                        child: Container(
+                            width: 100,
+                            child: Center(
+                                child: Text("Doctors",
+                                    style: TextStyle(
+                                        color: tColor, fontSize: 18)))),
                       ),
                     ),
                     Card(
                       color: tColor,
                       child: Padding(
                         padding: EdgeInsets.all(05),
-                        child: Container(width : 100,child :Center(child :  Text(
-                          "My Visiors",
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ))),
+                        child: Container(
+                            width: 100,
+                            child: Center(
+                                child: Text(
+                              "My Visiors",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ))),
                       ),
                     )
                   ],
@@ -2920,12 +3000,19 @@ class _HomeVisitViewPagerWidState extends State<HomeVisitViewPagerWid> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    this._getCurrentLocation();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Home Visit"),
       ),
-      body: buildPageView(),
+      body: buildPageView(context),
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:appxplorebd/myCalling/call.dart';
 import 'package:appxplorebd/networking/ApiProvider.dart';
 import 'package:appxplorebd/projPaypal/config.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -10,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:appxplorebd/chat/model/chat_message.dart';
 import 'package:appxplorebd/chat/service/authentication.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 String CLIEND_ID = "xploreDoc";
 
@@ -246,7 +249,20 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           Padding(
               padding: EdgeInsets.only(right: 20.0),
               child: GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  ClientRole _role = ClientRole.Broadcaster;
+                  // await for camera and mic permissions before pushing video page
+                  await _handleCameraAndMic();
+                  // push video page with given channel name
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CallPage(
+                        channelName:widget.chatRoom,
+                        role: _role,
+                      ),
+                    ),
+                  );
 
                 },
                 child: Icon(
@@ -309,7 +325,11 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
 
 }
-
+Future<void> _handleCameraAndMic() async {
+  await PermissionHandler().requestPermissions(
+    [PermissionGroup.camera, PermissionGroup.microphone],
+  );
+}
 class Choice {
   const Choice(this.title);
 

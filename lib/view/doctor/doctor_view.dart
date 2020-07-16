@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'dart:convert';
 import 'dart:io' show File, Platform;
 import 'package:appxplorebd/projPaypal/config.dart';
@@ -90,7 +92,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int bottomSelectedIndex = 0;
   int _page = 0;
-  List _titles = ["Home", "Notifications", "Profile",  "Blog","Settings"];
+  List _titles = ["Home", "Notifications", "Profile", "Blog", "Settings"];
   GlobalKey _bottomNavigationKey = GlobalKey();
 
   List<BottomNavigationBarItem> buildBottomNavBarItems() {
@@ -160,7 +162,6 @@ class _MyHomePageState extends State<MyHomePage> {
         Home(),
         ProjNotification(),
         Profile(),
-
         BlogActivityWithState(),
         SettingsWidState()
       ],
@@ -269,7 +270,6 @@ class _HomeState extends State<Home> {
       children: <Widget>[
         InkWell(
             onTap: () {
-
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -304,7 +304,6 @@ class _HomeState extends State<Home> {
             )), //chambeer app
         InkWell(
             onTap: () {
-
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -442,9 +441,10 @@ class _HomeState extends State<Home> {
             )), //ambulance
         InkWell(
             onTap: () {
-
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => PrescriptionRequestWid()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PrescriptionRequestWid()));
             },
             child: Container(
               height: 110,
@@ -513,9 +513,10 @@ class _HomeState extends State<Home> {
 
         InkWell(
             onTap: () {
-
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => VideoCallListWidget()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => VideoCallListWidget()));
               // _controller.jumpTo(_controller.position.maxScrollExtent);
             },
             child: Container(
@@ -672,7 +673,22 @@ class _HomeVisitWidgetState extends State<HomeVisitWidget> {
     });
     return "Success!";
   }
+  Future<PlacesDetailsResponse> _getLatLng(Prediction prediction) async {
+    GoogleMapsPlaces _places = new
+    GoogleMapsPlaces(apiKey: "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0");  //Same API_KEY as above
+    PlacesDetailsResponse detail =
+    await _places.getDetailsByPlaceId(prediction.placeId);
 
+
+//    final Map<String, dynamic> data =
+//    new Map<String, dynamic>();
+//    data['lat'] = latitude;
+//    data['log'] = longitude;
+//    data['address'] = address;
+
+    return detail;
+
+  }
   @override
   void initState() {
     // TODO: implement initState
@@ -686,6 +702,56 @@ class _HomeVisitWidgetState extends State<HomeVisitWidget> {
           title: Text("Home Visits"),
         ),
         body: Column(children: <Widget>[
+          InkWell(
+            onTap: () async {
+              Prediction prediction = await PlacesAutocomplete.show(
+                  context: context,
+                  apiKey: "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0",
+                  mode: Mode.overlay, // Mode.overlay
+                  language: "en",
+                  components: [Component(Component.country, "bd")]);
+              showThisToast((prediction.description).toString());
+              GoogleMapsPlaces _places = new
+              GoogleMapsPlaces(apiKey: "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0");  //Same API_KEY as above
+              PlacesDetailsResponse detail =
+              await _places.getDetailsByPlaceId(prediction.placeId);
+
+
+
+              double latitude = detail.result.geometry.location.lat;
+              double longitude = detail.result.geometry.location.lng;
+              String address = prediction.description;
+
+              final http.Response response =
+              await http.post(
+                _baseUrl + 'addHomeVisitAddress',
+                headers: <String, String>{
+                  'Content-Type':
+                  'application/json; charset=UTF-8',
+                  'Authorization': AUTH_KEY,
+                },
+                body: jsonEncode(<String, String>{
+                  'lat':latitude.toString(),
+                  'log':longitude.toString(),
+                  'address':address,
+                  'id':USER_ID
+
+                }),
+              );
+              showThisToast(
+                  (response.statusCode).toString());
+
+
+
+
+
+            },
+            child: Center(
+                child: Padding(padding : EdgeInsets.fromLTRB(0, 15, 0, 10) ,child :Text(
+                  "Add Preffered Visit Area",
+                  style: TextStyle(color: tColor, fontWeight: FontWeight.bold,fontSize: 20),
+                ))),
+          ),
           CheckboxListTile(
             title: Text("Home Service"),
             value: homeVisits,
@@ -768,7 +834,6 @@ class ConfirmedListWidget extends StatefulWidget {
 class _ConfirmedListWidgetState extends State<ConfirmedListWidget> {
   List confirmedList = [];
 
-
   Future getData() async {
     final http.Response response = await http.post(
       _baseUrl + 'get-appointment-list',
@@ -776,97 +841,105 @@ class _ConfirmedListWidgetState extends State<ConfirmedListWidget> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': AUTH_KEY,
       },
-      body: jsonEncode(
-          <String, String>{'user_type': "doctor", 'id': USER_ID, 'status': "1"}),
+      body: jsonEncode(<String, String>{
+        'user_type': "doctor",
+        'id': USER_ID,
+        'status': "1"
+      }),
     );
     this.setState(() {
       confirmedList = json.decode(response.body);
       print(confirmedList.toString());
-     // showThisToast((confirmedList.length).toString());
-
+      // showThisToast((confirmedList.length).toString());
     });
-
   }
+
   @override
   void initState() {
     this.getData();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Confirmed Appointments"),
       ),
-      body:(confirmedList!= null && confirmedList.length>0) ? ListView.builder(
-        itemCount:
-        confirmedList== null ? 0 : confirmedList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return new InkWell(
-              onTap: () {},
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(00.0),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      trailing: Icon(Icons.keyboard_arrow_right),
-                      leading: CircleAvatar(backgroundImage: NetworkImage(_baseUrl_image+confirmedList[index]["patient_info"]["photo"]),),
-                      title: new Text(
-                        confirmedList[index]["patient_info"]["name"],
-                        style: TextStyle(fontWeight: FontWeight.bold),
+      body: (confirmedList != null && confirmedList.length > 0)
+          ? ListView.builder(
+              itemCount: confirmedList == null ? 0 : confirmedList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new InkWell(
+                    onTap: () {},
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(00.0),
                       ),
-                      subtitle: new Text(
-                        confirmedList[index]["problems"],
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      child: Column(
+                        children: <Widget>[
+                          ListTile(
+                            trailing: Icon(Icons.keyboard_arrow_right),
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(_baseUrl_image +
+                                  confirmedList[index]["patient_info"]
+                                      ["photo"]),
+                            ),
+                            title: new Text(
+                              confirmedList[index]["patient_info"]["name"],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: new Text(
+                              confirmedList[index]["problems"],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              RaisedButton(
+                                color: Colors.white,
+                                elevation: 0,
+                                onPressed: () async {
+                                  final http.Response response =
+                                      await http.post(
+                                    _baseUrl + 'change-appointment-status',
+                                    headers: <String, String>{
+                                      'Content-Type':
+                                          'application/json; charset=UTF-8',
+                                      'Authorization': AUTH_KEY,
+                                    },
+                                    body: jsonEncode(<String, String>{
+                                      'status': "3",
+                                      'appointment_id': (confirmedList[index]
+                                              ["id"])
+                                          .toString()
+                                    }),
+                                  );
+                                  dynamic res = json.decode(response.body);
+                                  showThisToast(res["message"]);
+                                  this.getData();
+                                },
+                                child: Text("Mark as Served"),
+                              ),
+                              RaisedButton(
+                                color: Colors.white,
+                                elevation: 0,
+                                onPressed: () async {},
+                                child: Text("Make Prescription"),
+                              )
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                    Row( mainAxisAlignment: MainAxisAlignment.end,children: <Widget>[
-                      RaisedButton(
-                        color: Colors.white,
-                        elevation: 0,
-                        onPressed: () async {
-                          final http.Response response =
-                          await http.post(
-                            _baseUrl + 'change-appointment-status',
-                            headers: <String, String>{
-                              'Content-Type':
-                              'application/json; charset=UTF-8',
-                              'Authorization': AUTH_KEY,
-                            },
-                            body: jsonEncode(<String, String>{
-                              'status': "3" ,
-                              'appointment_id':
-                              (confirmedList[index]["id"]).toString()
-                            }),
-
-                          );
-                          dynamic res = json.decode(response.body);
-                          showThisToast(res["message"]);
-                          this.getData();
-                        },
-                        child: Text("Mark as Served"),
-                      ),
-                      RaisedButton(
-                        color: Colors.white,
-                        elevation: 0,
-                        onPressed: () async {
-
-                        },
-                        child: Text("Make Prescription"),
-                      )
-                    ],),
-
-
-                  ],
-                ),
-              ));
-        },
-      ):Center(child: Text("No Appointmnt Data"),),
+                    ));
+              },
+            )
+          : Center(
+              child: Text("No Appointmnt Data"),
+            ),
     );
   }
 }
-
 
 class PendingListWidget extends StatefulWidget {
   @override
@@ -876,7 +949,6 @@ class PendingListWidget extends StatefulWidget {
 class _PendingListWidgetState extends State<PendingListWidget> {
   List pendingList = [];
 
-
   Future getData() async {
     final http.Response response = await http.post(
       _baseUrl + 'get-appointment-list',
@@ -884,106 +956,128 @@ class _PendingListWidgetState extends State<PendingListWidget> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': AUTH_KEY,
       },
-      body: jsonEncode(
-          <String, String>{'user_type': "doctor", 'id': USER_ID, 'status': "0"}),
+      body: jsonEncode(<String, String>{
+        'user_type': "doctor",
+        'id': USER_ID,
+        'status': "0"
+      }),
     );
     this.setState(() {
       pendingList = json.decode(response.body);
       print(pendingList.toString());
       // showThisToast((confirmedList.length).toString());
-
     });
-
   }
+
   @override
   void initState() {
     this.getData();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Pending Appointments"),
       ),
-      body:(pendingList!= null && pendingList.length>0) ? ListView.builder(
-        itemCount:
-        pendingList== null ? 0 : pendingList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return new InkWell(
-              onTap: () {},
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(00.0),
-                ),
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      trailing: Icon(Icons.keyboard_arrow_right),
-                      leading: CircleAvatar(backgroundImage: NetworkImage(_baseUrl_image+pendingList[index]["patient_info"]["photo"]),),
-                      title: new Text(
-                        pendingList[index]["patient_info"]["name"],
-                        style: TextStyle(fontWeight: FontWeight.bold),
+      body: (pendingList != null && pendingList.length > 0)
+          ? ListView.builder(
+              itemCount: pendingList == null ? 0 : pendingList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new InkWell(
+                    onTap: () {},
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(00.0),
                       ),
-                      subtitle: new Text(
-                        pendingList[index]["problems"],
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      child: Column(
+                        children: <Widget>[
+                          ListTile(
+                            trailing: Icon(Icons.keyboard_arrow_right),
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(_baseUrl_image +
+                                  pendingList[index]["patient_info"]["photo"]),
+                            ),
+                            title: new Text(
+                              pendingList[index]["patient_info"]["name"],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: new Text(
+                              pendingList[index]["problems"],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              RaisedButton(
+                                color: Colors.white,
+                                elevation: 0,
+                                onPressed: () async {},
+                                child: Text("View Profile"),
+                              ),
+                              RaisedButton(
+                                color: Colors.white,
+                                elevation: 0,
+                                onPressed: () async {
+                                  final http.Response response =
+                                      await http.post(
+                                    _baseUrl + 'change-appointment-status',
+                                    headers: <String, String>{
+                                      'Content-Type':
+                                          'application/json; charset=UTF-8',
+                                      'Authorization': AUTH_KEY,
+                                    },
+                                    body: jsonEncode(<String, String>{
+                                      'status': "1",
+                                      'appointment_id':
+                                          (pendingList[index]["id"]).toString()
+                                    }),
+                                  );
+                                  dynamic res = json.decode(response.body);
+                                  showThisToast(res["message"]);
+                                  this.getData();
+                                },
+                                child: Text("Confirm"),
+                              ),
+                              RaisedButton(
+                                color: Colors.white,
+                                elevation: 0,
+                                onPressed: () async {},
+                                child: Text("Test Recommendation"),
+                              )
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        RaisedButton(
-                          color: Colors.white,
-                          elevation: 0,
-                          onPressed: () async {
-
-                          },
-                          child: Text("View Profile"),
-                        ),
-                      RaisedButton(
-                        color: Colors.white,
-                        elevation: 0,
-                        onPressed: () async {
-                          final http.Response response =
-                          await http.post(
-                            _baseUrl + 'change-appointment-status',
-                            headers: <String, String>{
-                              'Content-Type':
-                              'application/json; charset=UTF-8',
-                              'Authorization': AUTH_KEY,
-                            },
-                            body: jsonEncode(<String, String>{
-                              'status': "1" ,
-                              'appointment_id':
-                              (pendingList[index]["id"]).toString()
-                            }),
-
-                          );
-                          dynamic res = json.decode(response.body);
-                          showThisToast(res["message"]);
-                          this.getData();
-                        },
-                        child: Text("Confirm"),
-                      ),
-                      RaisedButton(
-                        color: Colors.white,
-                        elevation: 0,
-                        onPressed: () async {
-
-                        },
-                        child: Text("Test Recommendation"),
-                      )
-                    ],),
-
-
-                  ],
-                ),
-              ));
-        },
-      ):Center(child: Text("No Appointmnt Data"),),
+                    ));
+              },
+            )
+          : Center(
+              child: Text("No Appointmnt Data"),
+            ),
     );
   }
 }
+
+
+class LocationSelectionWidget extends StatefulWidget {
+  @override
+  _LocationSelectionWidgetState createState() => _LocationSelectionWidgetState();
+}
+
+class _LocationSelectionWidgetState extends State<LocationSelectionWidget> {
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Text("");
+  }
+}
+
+
+
+
 
 class VideoCallListWidget extends StatefulWidget {
   @override
@@ -993,7 +1087,6 @@ class VideoCallListWidget extends StatefulWidget {
 class _VideoCallListWidgetState extends State<VideoCallListWidget> {
   List VideoCallListList = [];
 
-
   Future getData() async {
     final http.Response response = await http.post(
       _baseUrl + 'get_video_appointment_list',
@@ -1001,102 +1094,114 @@ class _VideoCallListWidgetState extends State<VideoCallListWidget> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': AUTH_KEY,
       },
-      body: jsonEncode(
-          <String, String>{'user_type': "doctor", 'id': USER_ID,}),
+      body: jsonEncode(<String, String>{
+        'user_type': "doctor",
+        'id': USER_ID,
+      }),
     );
     this.setState(() {
       VideoCallListList = json.decode(response.body);
       print(VideoCallListList.toString());
       // showThisToast((confirmedList.length).toString());
-
     });
-
   }
+
   @override
   void initState() {
     this.getData();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Video Calls"),
       ),
-      body:(VideoCallListList!= null && VideoCallListList.length>0) ? ListView.builder(
-        shrinkWrap: true,
-        itemCount:
-        VideoCallListList== null ? 0 : VideoCallListList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return  Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(00.0),
-            ),
-            child: Column(
-
-              children: <Widget>[
-                ListTile(
-                  trailing: Icon(Icons.call),
-                  leading: CircleAvatar(backgroundImage: NetworkImage((_baseUrl_image+VideoCallListList[index]["patient_info"]["photo"]).toString()),),
-                  title: new Text(
-                    VideoCallListList[index]["patient_info"]["name"],
-                    style: TextStyle(fontWeight: FontWeight.bold),
+      body: (VideoCallListList != null && VideoCallListList.length > 0)
+          ? ListView.builder(
+              shrinkWrap: true,
+              itemCount:
+                  VideoCallListList == null ? 0 : VideoCallListList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(00.0),
                   ),
-                  subtitle: new Text(
-                    VideoCallListList[index]["created_at"],
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(
-                  child:  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                  child: Column(
                     children: <Widget>[
-
-                      Flexible(child:CheckboxListTile(
-                        title: Text("Seved"),
-                        value: VideoCallListList[index]["appointment_status"]==1?true:false,
-                        onChanged: (bool newValue) async {
-                          final http.Response response =
-                          await http.post(
-                            _baseUrl + 'change_video_appointment_status',
-                            headers: <String, String>{
-                              'Content-Type':
-                              'application/json; charset=UTF-8',
-                              'Authorization': AUTH_KEY,
-                            },
-                            body: jsonEncode(<String, String>{
-                              'status': newValue ? "1" : "0",
-                              'appointment_id':
-                              (VideoCallListList[index]["id"]).toString()
-                            }),
-                          );
-                          showThisToast(
-                              (response.statusCode).toString());
-                          this.getData();
-                        },
-                        controlAffinity:
-                        ListTileControlAffinity.leading, //  <-- leading Checkbox
-                      ),),
-                      Flexible(child:RaisedButton(
-                        color: Colors.white,
-                        elevation: 0,
-                        onPressed: () async {
-
-                        },
-                        child: Text("View Profile"),
-                      ),),
-
-
-
-                    ],),
-                )
-
-
-
-              ],
+                      ListTile(
+                        trailing: Icon(Icons.call),
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage((_baseUrl_image +
+                                  VideoCallListList[index]["patient_info"]
+                                      ["photo"])
+                              .toString()),
+                        ),
+                        title: new Text(
+                          VideoCallListList[index]["patient_info"]["name"],
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: new Text(
+                          VideoCallListList[index]["created_at"],
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      SizedBox(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Flexible(
+                              child: CheckboxListTile(
+                                title: Text("Seved"),
+                                value: VideoCallListList[index]
+                                            ["appointment_status"] ==
+                                        1
+                                    ? true
+                                    : false,
+                                onChanged: (bool newValue) async {
+                                  final http.Response response =
+                                      await http.post(
+                                    _baseUrl +
+                                        'change_video_appointment_status',
+                                    headers: <String, String>{
+                                      'Content-Type':
+                                          'application/json; charset=UTF-8',
+                                      'Authorization': AUTH_KEY,
+                                    },
+                                    body: jsonEncode(<String, String>{
+                                      'status': newValue ? "1" : "0",
+                                      'appointment_id':
+                                          (VideoCallListList[index]["id"])
+                                              .toString()
+                                    }),
+                                  );
+                                  showThisToast(
+                                      (response.statusCode).toString());
+                                  this.getData();
+                                },
+                                controlAffinity: ListTileControlAffinity
+                                    .leading, //  <-- leading Checkbox
+                              ),
+                            ),
+                            Flexible(
+                              child: RaisedButton(
+                                color: Colors.white,
+                                elevation: 0,
+                                onPressed: () async {},
+                                child: Text("View Profile"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                );
+              },
+            )
+          : Center(
+              child: Text("No Appointmnt Data"),
             ),
-          );
-        },
-      ):Center(child: Text("No Appointmnt Data"),),
     );
   }
 }
@@ -1121,17 +1226,16 @@ class _PrescriptionRequestWidState extends State<PrescriptionRequestWid> {
     print(response.body);
     this.setState(() {
       prescriptionReqList = json.decode(response.body);
-      showThisToast("pres req size "+(prescriptionReqList.length).toString());
-
+      showThisToast("pres req size " + (prescriptionReqList.length).toString());
     });
     return "Success!";
-
-
   }
+
   @override
   void initState() {
     this.getData();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1140,53 +1244,228 @@ class _PrescriptionRequestWidState extends State<PrescriptionRequestWid> {
       ),
       body: (prescriptionReqList != null && prescriptionReqList.length > 0)
           ? new ListView.builder(
-        itemCount: prescriptionReqList == null ? 0 : prescriptionReqList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return new InkWell(
-              onTap: () {
-//                Navigator.push(
-//                    context,
-//                    MaterialPageRoute(
-//                        builder: (context) => PrescriptionsodyWidget(
-//                            prescriptionReqList[index])));
+              itemCount:
+                  prescriptionReqList == null ? 0 : prescriptionReqList.length,
+              itemBuilder: (BuildContext context, int index) {
+                return new InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PrescriptionWriteWidget(
+                                  prescriptionReqList[index]["id"])));
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(00.0),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(05),
+                        child: ListTile(
+                          trailing: Icon(Icons.keyboard_arrow_right),
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(_baseUrl_image +
+                                prescriptionReqList[index]["patient_info"]
+                                    ["photo"]),
+                          ),
+                          title: new Text(
+                            (prescriptionReqList[index]["dr_info"] == null
+                                ? "No Doctor Name"
+                                : prescriptionReqList[index]["patient_info"]
+                                    ["name"]),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: new Text(
+                            prescriptionReqList[index]["problem"],
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ));
               },
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(00.0),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(05),
-                  child: ListTile(
-                    trailing: Icon(Icons.keyboard_arrow_right),
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(_baseUrl_image+ prescriptionReqList[index]["patient_info"]["photo"]),
-                    ),
-                    title: new Text(
-                      (prescriptionReqList[index]["dr_info"] == null
-                          ? "No Doctor Name"
-                          : prescriptionReqList[index]["patient_info"]["name"]),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: new Text(
-                      prescriptionReqList[index]["problem"],
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ));
-        },
-      )
+            )
           : Container(
-          height: 200,
-          child: Center(
-            child: Text("No Prescription Request"),
-          )),
+              height: 200,
+              child: Center(
+                child: Text("No Prescription Request"),
+              )),
     );
   }
 }
 
+class PrescriptionWriteWidget extends StatefulWidget {
+  int reqID;
 
+  PrescriptionWriteWidget(this.reqID);
 
+  @override
+  _PrescriptionWriteWidgettState createState() =>
+      _PrescriptionWriteWidgettState();
+}
+
+class _PrescriptionWriteWidgettState extends State<PrescriptionWriteWidget> {
+  List medicineList = [];
+  String _radioValue; //Initial definition of radio button value
+  String choice;
+  int mealTime = 0;
+
+  @override
+  void initState() {
+    setState(() {
+      _radioValue = "Before Meal";
+    });
+    super.initState();
+  }
+
+  void radioButtonChanges(String value) {
+    setState(() {
+      _radioValue = value;
+      switch (value) {
+        case 'Before Meal':
+          choice = value;
+          break;
+        case 'After Meal':
+          choice = value;
+          break;
+
+        default:
+          choice = null;
+      }
+      debugPrint(choice); //Debug the choice in console
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Create Prescription")),
+      body: Column(
+        children: <Widget>[
+          medicineList.length > 0
+              ? (InkWell(
+                  onTap: () {},
+                  child: Center(
+                    child: Padding(
+                        padding: EdgeInsets.all(10), child: Text("Submit")),
+                  ),
+                ))
+              : Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(10), child: Text("Add Medicine")),
+                ),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: medicineList == null ? 0 : medicineList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return new InkWell(
+                  onTap: () {
+//                Navigator.push(
+//                    context,
+//                    MaterialPageRoute(
+//                        builder: (context) => AmbulanceBodyWidget(
+//                            projectSnap.data[index])));
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(00.0),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(0),
+                      child: ListTile(
+                        trailing: Icon(Icons.keyboard_arrow_right),
+                        leading: Icon(Icons.directions_bus),
+                        title: new Text(
+                          medicineList[index]["name"],
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ));
+            },
+          )
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          final _formKey = GlobalKey<FormState>();
+          String medName;
+          return showDialog<void>(
+            context: context,
+            barrierDismissible: false, // user must tap button!
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Add Medicine'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(00, 00, 00, 10),
+                              child: TextFormField(
+                                validator: (value) {
+                                  medName = value;
+                                  if (value.isEmpty) {
+                                    return 'Please enter Meciccine Name';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            Row(
+                              children: <Widget>[
+                                Radio(
+                                  value: 'Before Meal',
+                                  groupValue: _radioValue,
+                                  onChanged: radioButtonChanges,
+                                ),
+                                Radio(
+                                  value: 'After Meal',
+                                  groupValue: _radioValue,
+                                  onChanged: radioButtonChanges,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: Text('Update'),
+                    onPressed: () {
+                      if (_formKey.currentState.validate()) {
+                        setState(() {
+                          final Map<String, dynamic> data =
+                              new Map<String, dynamic>();
+                          data['name'] = medName;
+                          medicineList.add(data);
+                        });
+
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
 
 class myServicesWidget extends StatefulWidget {
   @override
@@ -1210,31 +1489,31 @@ class _SettingsWidStateState extends State<SettingsWidState> {
   Widget build(BuildContext context) {
     return Container(
         child: DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            appBar: new PreferredSize(
-              preferredSize: Size.fromHeight(kToolbarHeight),
-              child: new Container(
-                color: Colors.white,
-                height: 50.0,
-                child: new TabBar(
-                  tabs: [
-                    Tab(text: "Services",),
-                    Tab(text: "Documents"),
-                  ],
+      length: 2,
+      child: Scaffold(
+        appBar: new PreferredSize(
+          preferredSize: Size.fromHeight(kToolbarHeight),
+          child: new Container(
+            color: tColor,
+            height: 50.0,
+            child: new TabBar(
+              tabs: [
+                Tab(
+                  text: "Services",
                 ),
-              ),
-            ),
-            body: TabBarView(
-              children: [
-                myServicesWidget(),
-                Center(
-                  child : Text("Documents")
-                ),
+                Tab(text: "Documents"),
               ],
             ),
           ),
-        ));
+        ),
+        body: TabBarView(
+          children: [
+            myServicesWidget(),
+            Center(child: Text("Documents")),
+          ],
+        ),
+      ),
+    ));
   }
 }
 
@@ -2437,83 +2716,83 @@ Widget ChatListWidget(BuildContext context) {
             showThisToast("chat histoory siz " + (lists.length).toString());
             return lists.length > 0
                 ? new ListView.builder(
-                shrinkWrap: true,
-                itemCount: lists.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return InkWell(
-                    onTap: () {
-                      String own_id = UID;
-                      String own_name = USER_NAME;
-                      OWN_PHOTO = USER_PHOTO;
-                      String partner_id = "";
-                      String partner_name = "";
-                      String parner_photo = "";
+                    shrinkWrap: true,
+                    itemCount: lists.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return InkWell(
+                        onTap: () {
+                          String own_id = UID;
+                          String own_name = USER_NAME;
+                          OWN_PHOTO = USER_PHOTO;
+                          String partner_id = "";
+                          String partner_name = "";
+                          String parner_photo = "";
 
-                      if (UID == (lists[index]["sender_id"])) {
-                        partner_id = lists[index]["recever_id"];
-                        partner_name = lists[index]["receiver_name"];
-                        parner_photo = lists[index]["receiver_photo"];
-                      } else {
-                        partner_id = lists[index]["sender_id"];
-                        partner_name = lists[index]["sender_name"];
-                        parner_photo = lists[index]["sender_photo"];
-                      }
+                          if (UID == (lists[index]["sender_id"])) {
+                            partner_id = lists[index]["recever_id"];
+                            partner_name = lists[index]["receiver_name"];
+                            parner_photo = lists[index]["receiver_photo"];
+                          } else {
+                            partner_id = lists[index]["sender_id"];
+                            partner_name = lists[index]["sender_name"];
+                            parner_photo = lists[index]["sender_photo"];
+                          }
 
-                      String own_photo = USER_PHOTO;
-                      PARTNER_PHOTO = parner_photo;
+                          String own_photo = USER_PHOTO;
+                          PARTNER_PHOTO = parner_photo;
 
-                      String chatRoom = createChatRoomName(
-                          int.parse(UID), int.parse(partner_id));
-                      CHAT_ROOM = chatRoom;
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ChatScreen(
-                                  own_id,
-                                  own_name,
-                                  own_photo,
-                                  partner_id,
-                                  partner_name,
-                                  parner_photo,
-                                  chatRoom)));
-                    },
-                    child: Card(
-                        child: (UID ==
-                            ((lists[index]["sender_id"])
-                                .toString())) //im this ms sender
-                            ? ListTile(
-                          leading: CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                "http://telemedicine.drshahidulislam.com/" +
-                                    lists[index]["receiver_photo"],
-                              )),
-                          title: Text(lists[index]["receiver_name"]),
-                          subtitle: (lists[index]["message_body"])
-                              .toString()
-                              .startsWith("http")
-                              ? Text("Photo")
-                              : Text((lists[index]["message_body"])
-                              .toString()),
-                        )
-                            : ListTile(
-                          leading: CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                "http://telemedicine.drshahidulislam.com/" +
-                                    lists[index]["sender_photo"],
-                              )),
-                          title: Text(lists[index]["sender_name"]),
-                          subtitle: (lists[index]["message_body"])
-                              .toString()
-                              .startsWith("http")
-                              ? Text("Photo")
-                              : Text((lists[index]["message_body"])
-                              .toString()),
-                        )),
-                  );
-                })
+                          String chatRoom = createChatRoomName(
+                              int.parse(UID), int.parse(partner_id));
+                          CHAT_ROOM = chatRoom;
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ChatScreen(
+                                      own_id,
+                                      own_name,
+                                      own_photo,
+                                      partner_id,
+                                      partner_name,
+                                      parner_photo,
+                                      chatRoom)));
+                        },
+                        child: Card(
+                            child: (UID ==
+                                    ((lists[index]["sender_id"])
+                                        .toString())) //im this ms sender
+                                ? ListTile(
+                                    leading: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                      "http://telemedicine.drshahidulislam.com/" +
+                                          lists[index]["receiver_photo"],
+                                    )),
+                                    title: Text(lists[index]["receiver_name"]),
+                                    subtitle: (lists[index]["message_body"])
+                                            .toString()
+                                            .startsWith("http")
+                                        ? Text("Photo")
+                                        : Text((lists[index]["message_body"])
+                                            .toString()),
+                                  )
+                                : ListTile(
+                                    leading: CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                      "http://telemedicine.drshahidulislam.com/" +
+                                          lists[index]["sender_photo"],
+                                    )),
+                                    title: Text(lists[index]["sender_name"]),
+                                    subtitle: (lists[index]["message_body"])
+                                            .toString()
+                                            .startsWith("http")
+                                        ? Text("Photo")
+                                        : Text((lists[index]["message_body"])
+                                            .toString()),
+                                  )),
+                      );
+                    })
                 : Center(
-              child: Text("No Chat History"),
-            );
+                    child: Text("No Chat History"),
+                  );
           } else {
             //showThisToast(snapshot.data.value.toString());
           }
