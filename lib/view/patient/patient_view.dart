@@ -27,6 +27,7 @@ import 'departments_for_online_doc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import 'myMapViewActivity.dart';
 import 'myYoutubePlayer.dart';
 
 var OWN_PHOTO;
@@ -2875,126 +2876,97 @@ class _HomeVisitViewPagerWidState extends State<HomeVisitViewPagerWid> {
   }
 
   Widget buildPageView(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
+    return Stack(
       children: <Widget>[
-        Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              (latitude != null)
-                  ? Text("Current location")
-                  : Text("Getting your location"),
-              FlatButton(
-                onPressed: () async {
-                  Prediction prediction = await PlacesAutocomplete.show(
-                      context: context,
-                      apiKey: "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0",
-                      mode: Mode.overlay,
-                      // Mode.overlay
-                      language: "en",
-                      components: [Component(Component.country, "bd")]);
-                  showThisToast((prediction.description).toString());
-                  GoogleMapsPlaces _places = new GoogleMapsPlaces(
-                      apiKey:
-                          "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0"); //Same API_KEY as above
-                  PlacesDetailsResponse detail =
-                      await _places.getDetailsByPlaceId(prediction.placeId);
-
-                  // double latitude = detail.result.geometry.location.lat;
-                  // double longitude = detail.result.geometry.location.lng;
-                  String address = prediction.description;
-
-                  setState(() {
-                    latitude = detail.result.geometry.location.lat;
-                    longitude = detail.result.geometry.location.lng;
-                  });
-                },
-                child: Padding(
-                    padding: EdgeInsets.fromLTRB(10, 0, 00, 0),
-                    child: Text("Change Location",
-                        style: TextStyle(
-                            color: tColor, fontWeight: FontWeight.bold))),
-              )
-            ],
-          ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 60,
+          child: HomeVisitsDoctorsList(),
         ),
-        Container(
-          height: 50,
-          child: selected == 0
-              ? Row(
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+              color: Colors.white,
+              height: 60,
+              child: Center(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Card(
-                        color: tColor,
-                        child: Padding(
-                          padding: EdgeInsets.all(05),
-                          child: Container(
-                              width: 100,
-                              child: Center(
-                                  child: Text("Doctors",
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 18)))),
-                        )),
-                    Card(
-                        color: Colors.white,
-                        child: Padding(
-                          padding: EdgeInsets.all(05),
-                          child: Container(
-                              width: 100,
-                              child: Center(
-                                  child: Text(
-                                "My Visiors",
-                                style: TextStyle(color: tColor, fontSize: 18),
-                              ))),
-                        )),
-                  ],
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Card(
-                      color: Colors.white,
+                    (latitude != null)
+                        ? Text("Current location")
+                        : Text("Getting your location"),
+                    FlatButton(
+                      onPressed: () async {
+                        Prediction prediction = await PlacesAutocomplete.show(
+                            context: context,
+                            apiKey: "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0",
+                            mode: Mode.overlay,
+                            // Mode.overlay
+                            language: "en",
+                            components: [Component(Component.country, "bd")]);
+                        showThisToast((prediction.description).toString());
+                        GoogleMapsPlaces _places = new GoogleMapsPlaces(
+                            apiKey:
+                                "AIzaSyB9H70aVLc4R14l6aUVqkLRhrvJvVszBZ0"); //Same API_KEY as above
+                        PlacesDetailsResponse detail = await _places
+                            .getDetailsByPlaceId(prediction.placeId);
+
+                        // double latitude = detail.result.geometry.location.lat;
+                        // double longitude = detail.result.geometry.location.lng;
+                        String address = prediction.description;
+
+                        setState(() {
+                          latitude = detail.result.geometry.location.lat;
+                          longitude = detail.result.geometry.location.lng;
+                        });
+                      },
                       child: Padding(
-                        padding: EdgeInsets.all(05),
-                        child: Container(
-                            width: 100,
-                            child: Center(
-                                child: Text("Doctors",
-                                    style: TextStyle(
-                                        color: tColor, fontSize: 18)))),
-                      ),
-                    ),
-                    Card(
-                      color: tColor,
-                      child: Padding(
-                        padding: EdgeInsets.all(05),
-                        child: Container(
-                            width: 100,
-                            child: Center(
-                                child: Text(
-                              "My Visiors",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
-                            ))),
-                      ),
+                          padding: EdgeInsets.fromLTRB(0, 0, 00, 0),
+                          child: Text("Change Location",
+                              style: TextStyle(
+                                  color: tColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18))),
                     )
                   ],
                 ),
+              )),
         ),
-        Container(
-            height: 500,
-            child: PageView(
-              controller: pageController,
-              onPageChanged: (index) {
-                // pageChanged(index);
-                setState(() {
-                  selected = index;
-                });
-              },
-              children: <Widget>[HomeVisitsDoctorsList(), Text("Two")],
-            ))
+        Positioned(
+          right: 00,
+          bottom: 60,
+          child: Padding(
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              MyAppMap(),
+                        ));
+                  },
+                  child: Card(
+                      color: tColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.map,
+                                color: Colors.white,
+                              ),
+                              Text("View on Map",
+                                  style: TextStyle(color: Colors.white))
+                            ],
+                          ))))),
+        ),
       ],
     );
   }
@@ -3010,7 +2982,7 @@ class _HomeVisitViewPagerWidState extends State<HomeVisitViewPagerWid> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Home Visit"),
+        title: Text("Choose Doctor"),
       ),
       body: buildPageView(context),
     );

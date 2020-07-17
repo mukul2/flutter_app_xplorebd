@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appxplorebd/models/login_response.dart';
+import 'package:appxplorebd/view/patient/myMapViewActivity.dart';
 import 'doctor/doctor_view.dart';
 import 'file:///D:/downloads/TM/flutter_app_xplorebd/lib/view/patient/patient_view.dart';
 import 'package:flutter/material.dart';
@@ -129,6 +130,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                           showThisToast("patient");
 
                           mainP();
+                         // mainMap();
 //                      Navigator.push(
 //                          context, MaterialPageRoute(builder: (context) => PatientAPP()));
                         } else {
